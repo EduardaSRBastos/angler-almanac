@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Almanaque do Pescador · Angler's Almanac</title>
+  <meta name="description"
+    content="Almanaque do Pescador (Angler's Almanac) — guia prático de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais." />
+  <meta name="keywords"
+    content="Almanaque do Pescador, Angler's Almanac, guia de pesca, pesqueiros, épocas de pesca, Ria de Aveiro, fishing guide, fishing spots, fishing seasons, fishing gear, fishing rods" />
+
+  <meta name="author" content="Eduarda Bastos" />
+  <meta name="theme-color" content="#1f6584" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+  <!-- Open Graph (WhatsApp, Facebook, LinkedIn, Discord) -->
+  <meta property="og:locale" content="pt_PT" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:title" content="Almanaque do Pescador · Angler's Almanac" />
+  <meta property="og:description"
+    content="Guia de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais. / A fishing guide with top spots, what to catch and when, gear tips, and rules." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://eduardasrbastos.github.io/angler-almanac" />
+  <meta property="og:image" content="https://eduardasrbastos.github.io/angler-almanac/assets/images/preview.png" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Almanaque do Pescador · Angler's Almanac" />
+  <meta name="twitter:description"
+    content="Guia de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento e regras. / A fishing guide with top spots, seasons, and gear tips." />
+  <meta name="twitter:image" content="https://eduardasrbastos.github.io/angler-almanac/assets/images/preview.png" />
+
+  <link rel="canonical" href="https://eduardasrbastos.github.io/angler-almanac" />
+  <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <title>Almanaque do Pescador</title>
+  
+  <meta name="description"
+    content="Almanaque do Pescador — um guia de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="topo">
+      <div>
+        <h1 id="site-title">Almanaque do Pescador</h1>
+        <p class="sub" id="site-sub">Guia prático de pesqueiros, épocas, iscos e regras.</p>
+      </div>
+      <div class="topo-acoes">
+        <button id="theme-toggle" class="icon-btn" type="button" aria-label="Mudar tema" title="Mudar tema">🌙</button>
+        <button id="lang-toggle" class="lang-btn" type="button" aria-label="Mudar idioma">EN</button>
+      </div>
+    </header>
+
+    <!-- Navegação principal (Tabs) -->
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="pesqueiros" role="tab" aria-selected="true"
+        id="tab-pesqueiros">Pesqueiros</button>
+      <button class="tab" data-tab="equipamento" role="tab" aria-selected="false"
+        id="tab-equipamento">Equipamento</button>
+    </nav>
+
+    <!-- TAB 1: Pesqueiros -->
+    <main id="panel-pesqueiros" class="tab-panel active">
+      <!-- Seleção de Distritos -->
+      <div class="distritos" id="distritos-bar">
+        <button class="distrito-btn active" data-distrito="aveiro" type="button">Aveiro</button>
+        <!-- Futuros distritos: <button class="distrito-btn" data-distrito="porto" type="button">Porto</button> -->
+      </div>
+
+      <div id="mapa-pesqueiros" class="mapa-box"></div>
+
+      <!-- Filtros existentes -->
+      <section class="filtros">
+        <label>
+          <span id="lbl-mes">Mês</span>
+          <select id="mes"></select>
+        </label>
+        <label>
+          <span id="lbl-tipo">Tipo de água</span>
+          <select id="tipo"></select>
+        </label>
+        <label>
+          <span id="lbl-peixe">Espécie</span>
+          <select id="peixe"></select>
+        </label>
+        <label>
+          <span id="lbl-hip">Hipóteses de captura</span>
+          <select id="hip"></select>
+        </label>
+      </section>
+
+      <p id="contagem"></p>
+      <div id="lista"></div>
+
+      <details class="regras">
+        <summary id="regras-titulo">Regras a confirmar antes de ires</summary>
+        <ul id="regras-lista">
+          <li>Precisas de licença de pesca lúdica marítima. Quem pesca robalo tem de registar as capturas na app
+            RecFishing.</li>
+          <li>Dentro da Ria: anzol com abertura mínima de 8 mm, no máximo 3 anzóis por cana, e é proibido iscar ou
+            engodar com ovas de peixe.</li>
+          <li>Defesos de isco (captura e venda): minhoca-da-lama de 1 mar a 30 abr, casulo de 1 mai a 30 jun.</li>
+          <li>Molhe Norte: segundo as normas do Porto de Aveiro de 2021, num troço do lado da Ria a pesca apeada está
+            interdita de 1 out a 30 abr. Confirma o troço.</li>
+          <li>Não pesques nos molhes com ondulação forte.</li>
+          <li>Não comas peixe apanhado na zona de Estarreja e da bacia do Laranjo, onde há mercúrio.</li>
+          <li>Os tamanhos mínimos são os da tabela da DGRM. Peixe abaixo desse tamanho devolve-se à água.</li>
+        </ul>
+      </details>
+    </main>
+
+    <!-- TAB 2: Equipamento (Placeholder para futuro conteúdo) -->
+    <section id="panel-equipamento" class="tab-panel" hidden>
+      <div class="vazio" id="equipamento-placeholder">
+        Em breve: guia de tipos de canas, montagens e carretos.
+      </div>
+    </section>
+
+    <footer>
+      © <span id="year"></span> Eduarda Bastos. Licensed under the MIT License.
+    </footer>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="index.js"></script>
+</body>
+
+</html>
