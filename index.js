@@ -24,9 +24,13 @@ const I18N = {
   pt: {
     title: "Almanaque do Pescador",
     sub: "Guia prático de pesqueiros, épocas, iscos e regras.",
+    metaDesc:
+      "Almanaque do Pescador — um guia de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais.",
     toggleBtn: "EN",
     tabPesqueiros: "Pesqueiros",
     tabEquipamento: "Equipamento",
+    lblBusca: "Local",
+    buscaPlaceholder: "Pesquisar local...",
     lblMes: "Mês",
     lblTipo: "Tipo de água",
     lblPeixe: "Espécie",
@@ -54,24 +58,30 @@ const I18N = {
     count: (hits, total) => `${hits} de ${total} entradas`,
     empty:
       "Nada com estes filtros. Experimenta outro mês ou baixa o mínimo de hipóteses.",
+    clearFilters: "Limpar filtros",
+    verDetalhes: "Ver detalhes ↓",
+    verNoMapa: "Ver no mapa",
     minLabel: "mín.",
     fHorario: "Horário",
     fMare: "Maré / corrente",
     fIsco: "Isco",
     fAmostra: "Amostra",
+    fPreferencia: "Preferência de isco",
     fTecnica: "Técnica",
     fMovimento: "Movimento",
     regrasTitulo: "Regras a confirmar antes de ires",
     equipPlaceholder: "Em breve: guia de tipos de canas, montagens e carretos.",
-    metaDesc:
-      "Almanaque do Pescador — um guia de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais.",
   },
   en: {
     title: "Angler's Almanac",
     sub: "Practical guide to fishing spots, seasons, baits, and regulations.",
+    metaDesc:
+      "Angler's Almanac — a fishing guide with top spots, what to catch and when, gear tips, rules, and much more.",
     toggleBtn: "PT",
     tabPesqueiros: "Spots",
     tabEquipamento: "Gear & Rods",
+    lblBusca: "Spot",
+    buscaPlaceholder: "Search spot...",
     lblMes: "Month",
     lblTipo: "Water type",
     lblPeixe: "Species",
@@ -99,17 +109,19 @@ const I18N = {
     count: (hits, total) => `${hits} of ${total} entries`,
     empty:
       "No matches for these filters. Try another month or lower the minimum catch odds.",
+    clearFilters: "Clear filters",
+    verDetalhes: "View details ↓",
+    verNoMapa: "Show on map",
     minLabel: "min.",
     fHorario: "Best time",
     fMare: "Tide / current",
     fIsco: "Bait",
     fAmostra: "Lure",
+    fPreferencia: "Bait preference",
     fTecnica: "Technique",
     fMovimento: "Retrieve / action",
     regrasTitulo: "Rules to check before heading out",
     equipPlaceholder: "Coming soon: guide to rod types, rigs, and reels.",
-    metaDesc:
-      "Angler's Almanac — a fishing guide with top spots, what to catch and when, gear tips, rules, and much more.",
   },
 };
 
@@ -117,6 +129,7 @@ const $ = (id) => document.getElementById(id);
 
 let currentLang = "pt";
 let currentDistrito = "aveiro";
+let selectedLocal = null;
 
 // --- Gestão de Tema (Claro / Escuro) ---
 const themeBtn = $("theme-toggle");
@@ -141,8 +154,21 @@ themeBtn.addEventListener("click", () => {
   applyTheme(next);
 });
 
-// Ano no rodapé
 $("year").textContent = new Date().getFullYear();
+
+// --- Botão Voltar ao Topo ---
+const goTopBtn = $("go-top");
+window.addEventListener(
+  "scroll",
+  () => {
+    goTopBtn.hidden = window.scrollY < 320;
+  },
+  { passive: true },
+);
+
+goTopBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 function seasonMonths(text) {
   const set = new Set();
@@ -198,6 +224,7 @@ Object.entries(RAW).forEach(([distrito, rawText]) => {
 });
 
 const els = {
+  busca: $("busca"),
   mes: $("mes"),
   tipo: $("tipo"),
   peixe: $("peixe"),
@@ -243,20 +270,22 @@ function applyLanguage() {
   const t = I18N[currentLang];
   document.documentElement.lang = currentLang;
   document.title = t.title;
+  const metaDescEl = document.querySelector('meta[name="description"]');
+  if (metaDescEl) metaDescEl.setAttribute("content", t.metaDesc);
+
   $("site-title").textContent = t.title;
   $("site-sub").textContent = t.sub;
   $("lang-toggle").textContent = t.toggleBtn;
   $("tab-pesqueiros").textContent = t.tabPesqueiros;
   $("tab-equipamento").textContent = t.tabEquipamento;
+  $("lbl-busca").textContent = t.lblBusca;
+  $("busca").placeholder = t.buscaPlaceholder;
   $("lbl-mes").textContent = t.lblMes;
   $("lbl-tipo").textContent = t.lblTipo;
   $("lbl-peixe").textContent = t.lblPeixe;
   $("lbl-hip").textContent = t.lblHip;
   $("regras-titulo").textContent = t.regrasTitulo;
   $("equipamento-placeholder").textContent = t.equipPlaceholder;
-
-  const metaDescEl = document.querySelector('meta[name="description"]');
-  if (metaDescEl) metaDescEl.setAttribute("content", t.metaDesc);
 
   populateFilters(false);
   render();
@@ -268,14 +297,32 @@ function field(label, value) {
     : "";
 }
 
+function slugify(text) {
+  return "local-" + text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function resetAllFilters() {
+  els.busca.value = "";
+  els.mes.value = "";
+  els.tipo.value = "";
+  els.peixe.value = "";
+  els.hip.value = "";
+  selectedLocal = null;
+  render();
+}
+
+let currentGroups = new Map();
+
 function render() {
   const t = I18N[currentLang];
   const districtRows = rows.filter((r) => r.distrito === currentDistrito);
+  const query = els.busca.value.trim().toLowerCase();
   const mes = els.mes.value;
   const minRank = Number(els.hip.value) || 0;
 
   const hits = districtRows.filter(
     (r) =>
+      (!query || r.local.toLowerCase().includes(query)) &&
       (mes === "" || r.meses.has(Number(mes))) &&
       (!els.tipo.value || r.tipo === els.tipo.value) &&
       (!els.peixe.value || r.peixe === els.peixe.value) &&
@@ -284,20 +331,30 @@ function render() {
 
   const groups = new Map();
   hits.forEach((r) => groups.set(r.local, [...(groups.get(r.local) || []), r]));
+  currentGroups = groups;
 
-  updateMapMarkers(groups); // <--- ADICIONA ESTA LINHA
+  updateMapMarkers(groups);
 
   els.contagem.textContent = t.count(hits.length, districtRows.length);
   if (!hits.length) {
-    els.lista.innerHTML = `<p class="vazio">${t.empty}</p>`;
+    els.lista.innerHTML = `
+      <div class="vazio">
+        <p style="margin:0">${t.empty}</p>
+        <button type="button" id="btn-reset-filters" class="btn-limpar">${t.clearFilters}</button>
+      </div>`;
+    $("btn-reset-filters").addEventListener("click", resetAllFilters);
     return;
   }
 
   els.lista.innerHTML = [...groups]
     .map(
       ([name, items]) => `
-    <section class="local">
-      <h2>${name}</h2>
+    <section class="local" id="${slugify(name)}">
+      <h2>
+        <button type="button" class="local-link" data-local="${name}" title="${t.verNoMapa}">
+          <span>${name}</span>
+        </button>
+      </h2>
       <p class="tipo">${[...new Set(items.map((i) => i.tipo))].join(" · ")}</p>
       ${items
         .map(
@@ -310,9 +367,13 @@ function render() {
             <span class="chip c${r.rank}">${r.hip}</span>
           </summary>
           <dl>
-            ${field(t.fHorario, r.horario)}${field(t.fMare, r.mare)}
-            ${field(t.fIsco, r.isco)}${field(t.fAmostra, r.amostra)}
-            ${field(t.fTecnica, r.tecnica)}${field(t.fMovimento, r.movimento)}
+            ${field(t.fHorario, r.horario)}
+            ${field(t.fMare, r.mare)}
+            ${field(t.fIsco, r.isco)}
+            ${field(t.fAmostra, r.amostra)}
+            ${field(t.fPreferencia, r.preferencia)}
+            ${field(t.fTecnica, r.tecnica)}
+            ${field(t.fMovimento, r.movimento)}
           </dl>
         </details>`,
         )
@@ -320,12 +381,20 @@ function render() {
     </section>`,
     )
     .join("");
+
+  // Evento ao clicar no nome do local na lista -> foca no mapa e abre popup
+  els.lista.querySelectorAll(".local-link").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      focusLocalOnMap(btn.dataset.local);
+    });
+  });
 }
 
 // Eventos dos filtros
 ["mes", "tipo", "peixe", "hip"].forEach((id) =>
   els[id].addEventListener("change", render),
 );
+els.busca.addEventListener("input", render);
 
 // Evento do botão PT / EN
 $("lang-toggle").addEventListener("click", () => {
@@ -358,12 +427,13 @@ document.querySelectorAll(".distrito-btn").forEach((btn) => {
       .forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     currentDistrito = btn.dataset.distrito;
+    selectedLocal = null;
     populateFilters(false);
     render();
   });
 });
 
-// Coordenadas GPS reais dos pesqueiros (Aveiro)
+// --- Mapa Interativo SVG ---
 const COORDS = {
   "Cais da Tijosa / Canal de Ovar (Ovar)": [40.8615, -8.651],
   "Cais do Carregal (Ovar)": [40.8481, -8.6582],
@@ -391,7 +461,6 @@ const COORDS = {
   "Praia da Barra / Costa Nova (Ílhavo)": [40.6285, -8.752],
 };
 
-// Conversão de Latitude/Longitude da Ria de Aveiro para coordenadas SVG (viewBox 0 0 600 420)
 function geoToSvg(lat, lon) {
   const minLat = 40.595,
     maxLat = 40.89;
@@ -403,24 +472,109 @@ function geoToSvg(lat, lon) {
 }
 
 let mapView = { x: 0, y: 0, w: 600, h: 420 };
+const BOUNDS = { minX: -150, maxX: 850, minY: -180, maxY: 650 };
+
+function clampView() {
+  mapView.x = Math.max(
+    BOUNDS.minX,
+    Math.min(BOUNDS.maxX - mapView.w, mapView.x),
+  );
+  mapView.y = Math.max(
+    BOUNDS.minY,
+    Math.min(BOUNDS.maxY - mapView.h, mapView.y),
+  );
+}
+
+function updateViewBox() {
+  const svg = $("mapa-svg");
+  if (!svg) return;
+  clampView();
+  svg.setAttribute(
+    "viewBox",
+    `${mapView.x} ${mapView.y} ${mapView.w} ${mapView.h}`,
+  );
+}
+
+function setSelectedPin(localName) {
+  selectedLocal = localName;
+  document.querySelectorAll(".mapa-pin").forEach((pin) => {
+    pin.classList.toggle("selected", pin.dataset.local === localName);
+  });
+}
+
+function openMapPopup(localName, items) {
+  const popup = $("mapa-popup");
+  if (!popup || !items) return;
+  const t = I18N[currentLang];
+  const peixes = items
+    .map((i) => `<strong>${i.peixe}</strong> (${i.epoca})`)
+    .join(" · ");
+  const tipos = [...new Set(items.map((i) => i.tipo))].join(" · ");
+
+  setSelectedPin(localName);
+
+  popup.innerHTML = `
+    <div class="mapa-popup-header">
+      <div>
+        <strong>${localName}</strong><br>
+        <span style="color:var(--channel);font-size:0.8rem">${tipos}</span>
+      </div>
+      <button type="button" class="mapa-popup-close" aria-label="Fechar">✕</button>
+    </div>
+    <div>${peixes}</div>
+    <button type="button" class="mapa-popup-btn">${t.verDetalhes}</button>
+  `;
+  popup.hidden = false;
+
+  popup.querySelector(".mapa-popup-close").addEventListener("click", () => {
+    popup.hidden = true;
+    setSelectedPin(null);
+  });
+
+  popup.querySelector(".mapa-popup-btn").addEventListener("click", () => {
+    popup.hidden = true;
+    const targetEl = $(slugify(localName));
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      targetEl.classList.add("destaque");
+      setTimeout(() => targetEl.classList.remove("destaque"), 2000);
+    }
+  });
+}
+
+function focusLocalOnMap(localName) {
+  const coords = COORDS[localName];
+  const items = currentGroups.get(localName);
+  const mapBox = $("mapa-pesqueiros");
+  if (!coords || !items || !mapBox) return;
+
+  // Faz scroll suave até ao mapa
+  mapBox.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  // Centra e aproxima ligeiramente a vista no ponto escolhido
+  const [cx, cy] = geoToSvg(coords[0], coords[1]);
+  mapView.w = 380;
+  mapView.h = 380 * (420 / 600);
+  mapView.x = cx - mapView.w / 2;
+  mapView.y = cy - mapView.h / 2 + 25; // ligeiro desvio para o popup não tapar o ponto
+  updateViewBox();
+
+  // Destaca o círculo e abre o popup
+  openMapPopup(localName, items);
+}
 
 function initMap() {
-  const box = document.getElementById("mapa-pesqueiros");
+  const box = $("mapa-pesqueiros");
   if (!box) return;
 
   box.innerHTML = `
     <svg id="mapa-svg" viewBox="0 0 600 420" preserveAspectRatio="xMidYMid slice" aria-label="Mapa da Ria de Aveiro" style="cursor:grab">
-      <!-- Continente estendido (margem nascente) -->
       <path class="mapa-terra" d="M 380,-300 L 1000,-300 L 1000,800 L 120,800 L 200,350 L 260,310 L 340,260 L 395,210 L 415,150 L 450,110 L 470,50 Z" />
-      <!-- Restinga de São Jacinto / Torreira / Furadouro (norte da Barra) -->
       <path class="mapa-terra" d="M 365,-300 L 475,-300 L 445,0 L 420,95 L 365,175 L 330,235 L 250,295 L 145,342 L 112,346 L 118,325 L 210,245 L 295,140 Z" />
-      <!-- Restinga da Costa Nova / Barra (sul da Barra) -->
       <path class="mapa-terra" d="M 105,360 L 165,362 L 110,800 L 20,800 Z" />
-      <!-- Ilhas interiores da Ria (Murtosa / Monte Branco) -->
       <path class="mapa-terra" d="M 355,195 L 385,190 L 380,225 L 345,235 Z" />
       <path class="mapa-terra" d="M 285,270 L 325,260 L 315,295 L 275,300 Z" />
 
-      <!-- Etiquetas geográficas -->
       <text class="mapa-label" x="45" y="160">OCEANO ATLÂNTICO</text>
       <text class="mapa-label" x="480" y="75">Ovar</text>
       <text class="mapa-label" x="505" y="140">Estarreja</text>
@@ -428,7 +582,6 @@ function initMap() {
       <text class="mapa-label" x="395" y="330">Aveiro</text>
       <text class="mapa-label" x="245" y="395">Ílhavo</text>
 
-      <!-- Camada dinâmica dos marcadores -->
       <g id="mapa-pins"></g>
     </svg>
     <div style="position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:3;">
@@ -439,32 +592,11 @@ function initMap() {
     <div id="mapa-popup" class="mapa-popup" hidden></div>
   `;
 
-  const svg = document.getElementById("mapa-svg");
-  // Limites máximos do mapa (onde existem polígonos desenhados)
-  const BOUNDS = { minX: -150, maxX: 850, minY: -180, maxY: 650 };
-
-  function clampView() {
-    mapView.x = Math.max(
-      BOUNDS.minX,
-      Math.min(BOUNDS.maxX - mapView.w, mapView.x),
-    );
-    mapView.y = Math.max(
-      BOUNDS.minY,
-      Math.min(BOUNDS.maxY - mapView.h, mapView.y),
-    );
-  }
-
-  const updateViewBox = () => {
-    clampView();
-    svg.setAttribute(
-      "viewBox",
-      `${mapView.x} ${mapView.y} ${mapView.w} ${mapView.h}`,
-    );
-  };
+  const svg = $("mapa-svg");
 
   function zoomBy(factor) {
     const minW = 180;
-    const maxW = 900; // Máximo de zoom out permitido dentro dos limites
+    const maxW = 900;
     const newW = Math.min(maxW, Math.max(minW, mapView.w * factor));
     const newH = newW * (420 / 600);
     mapView.x -= (newW - mapView.w) / 2;
@@ -474,20 +606,13 @@ function initMap() {
     updateViewBox();
   }
 
-  // Botões de Zoom
-  document
-    .getElementById("zoom-in")
-    .addEventListener("click", () => zoomBy(0.8));
-  document
-    .getElementById("zoom-out")
-    .addEventListener("click", () => zoomBy(1.25));
-
-  document.getElementById("zoom-reset").addEventListener("click", () => {
+  $("zoom-in").addEventListener("click", () => zoomBy(0.8));
+  $("zoom-out").addEventListener("click", () => zoomBy(1.25));
+  $("zoom-reset").addEventListener("click", () => {
     mapView = { x: 0, y: 0, w: 600, h: 420 };
     updateViewBox();
   });
 
-  // Zoom suave com roda do rato
   svg.addEventListener(
     "wheel",
     (e) => {
@@ -497,7 +622,6 @@ function initMap() {
     { passive: false },
   );
 
-  // Arrastar (Pan) limitado às bordas do mapa
   let isDragging = false,
     startX = 0,
     startY = 0;
@@ -525,19 +649,23 @@ function initMap() {
     svg.style.cursor = "grab";
   });
 
-  // Fechar popup ao clicar fora dele (ou fora dos marcadores)
   document.addEventListener("click", (e) => {
-    const popup = document.getElementById("mapa-popup");
+    const popup = $("mapa-popup");
     if (!popup || popup.hidden) return;
-    if (!popup.contains(e.target) && !e.target.classList.contains("mapa-pin")) {
+    if (
+      !popup.contains(e.target) &&
+      !e.target.classList.contains("mapa-pin") &&
+      !e.target.closest(".local-link")
+    ) {
       popup.hidden = true;
+      setSelectedPin(null);
     }
   });
 }
 
 function updateMapMarkers(groups) {
-  const pinsLayer = document.getElementById("mapa-pins");
-  const popup = document.getElementById("mapa-popup");
+  const pinsLayer = $("mapa-pins");
+  const popup = $("mapa-popup");
   if (!pinsLayer) return;
 
   pinsLayer.innerHTML = "";
@@ -554,31 +682,17 @@ function updateMapMarkers(groups) {
     circle.setAttribute("cx", cx);
     circle.setAttribute("cy", cy);
     circle.setAttribute("r", "6");
-    circle.setAttribute("fill", "#5aa7c6");
     circle.setAttribute("stroke", "#ffffff");
     circle.setAttribute("stroke-width", "1.8");
     circle.setAttribute("class", "mapa-pin");
+    circle.dataset.local = localName;
+    if (selectedLocal === localName) {
+      circle.classList.add("selected");
+    }
 
     circle.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (!popup) return;
-      const peixes = items
-        .map((i) => `<strong>${i.peixe}</strong> (${i.epoca})`)
-        .join(" · ");
-      popup.innerHTML = `
-        <div class="mapa-popup-header">
-          <div>
-            <strong>${localName}</strong><br>
-            <span style="color:var(--channel);font-size:0.8rem">${items[0].tipo}</span>
-          </div>
-          <button type="button" class="mapa-popup-close" aria-label="Fechar">✕</button>
-        </div>
-        <div>${peixes}</div>
-      `;
-      popup.hidden = false;
-      popup.querySelector(".mapa-popup-close").addEventListener("click", () => {
-        popup.hidden = true;
-      });
+      openMapPopup(localName, items);
     });
 
     pinsLayer.appendChild(circle);

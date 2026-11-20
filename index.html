@@ -34,12 +34,6 @@
   <link rel="canonical" href="https://eduardasrbastos.github.io/angler-almanac" />
   <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico" />
   <link rel="stylesheet" href="styles.css" />
-
-  <title>Almanaque do Pescador</title>
-  
-  <meta name="description"
-    content="Almanaque do Pescador — um guia de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais." />
-  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
@@ -68,13 +62,17 @@
       <!-- Seleção de Distritos -->
       <div class="distritos" id="distritos-bar">
         <button class="distrito-btn active" data-distrito="aveiro" type="button">Aveiro</button>
-        <!-- Futuros distritos: <button class="distrito-btn" data-distrito="porto" type="button">Porto</button> -->
       </div>
 
+      <!-- Contentor do Mapa -->
       <div id="mapa-pesqueiros" class="mapa-box"></div>
 
-      <!-- Filtros existentes -->
+      <!-- Filtros existentes + Pesquisa de local -->
       <section class="filtros">
+        <label>
+          <span id="lbl-busca">Local</span>
+          <input type="search" id="busca" placeholder="Pesquisar local..." />
+        </label>
         <label>
           <span id="lbl-mes">Mês</span>
           <select id="mes"></select>
@@ -124,6 +122,10 @@
       © <span id="year"></span> Eduarda Bastos. Licensed under the MIT License.
     </footer>
   </div>
+
+  <!-- Botão Voltar ao Topo -->
+  <button id="go-top" class="go-top-btn" type="button" aria-label="Voltar ao topo" title="Voltar ao topo"
+    hidden>↑</button>
 
   <script src="data.js"></script>
   <script src="index.js"></script>

@@ -6,6 +6,8 @@
   --muted: #566b70;
   --line: #cbd7d8;
   --channel: #1f6584;
+  --pin: #3d86a5;
+  --pin-active: #c3e1ec;
   --chip1: #dfe5e6;
   --chip1-ink: #435357;
   --chip2: #d3e4ea;
@@ -28,6 +30,8 @@
   --muted: #9bb0b4;
   --line: #2a4248;
   --channel: #7fc0db;
+  --pin: #7fc0db;
+  --pin-active: #e3eced;
   --chip1: #2a3b3f;
   --chip1-ink: #b4c6c9;
   --chip2: #254955;
@@ -45,7 +49,7 @@
 }
 
 html {
-  scrollbar-color: var(--channel) var(--chip2);
+  scrollbar-color: var(--channel) var(--chip4);
   min-height: 100%;
   min-width: 100%;
 }
@@ -149,6 +153,7 @@ h1 {
   border-color: var(--channel);
 }
 
+/* Mapa Interativo SVG */
 .mapa-box {
   position: relative;
   width: 100%;
@@ -159,6 +164,7 @@ h1 {
   margin-bottom: 1rem;
   overflow: hidden;
   user-select: none;
+  scroll-margin-top: 1rem;
 }
 
 [data-theme="dark"] .mapa-box {
@@ -182,17 +188,6 @@ h1 {
   stroke: #2e484f;
 }
 
-.mapa-ria {
-  fill: #cde3eb;
-  stroke: #9ec2cf;
-  stroke-width: 1;
-}
-
-[data-theme="dark"] .mapa-ria {
-  fill: #102a35;
-  stroke: #1f4757;
-}
-
 .mapa-label {
   font: 600 11px var(--sans);
   fill: var(--muted);
@@ -200,12 +195,20 @@ h1 {
 }
 
 .mapa-pin {
+  fill: var(--pin);
   cursor: pointer;
-  transition: r 0.15s ease;
+  transition:
+    r 0.15s ease,
+    fill 0.2s ease;
 }
 
 .mapa-pin:hover {
   r: 8;
+}
+
+.mapa-pin.selected {
+  fill: var(--pin-active);
+  r: 8.5;
 }
 
 .mapa-popup {
@@ -241,6 +244,23 @@ h1 {
   padding: 0 0.25rem;
 }
 
+.mapa-popup-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font: 600 0.8rem var(--sans);
+  color: var(--panel);
+  background: var(--channel);
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+}
+
+.mapa-popup-btn:hover {
+  opacity: 0.9;
+}
+
+/* Filtros */
 .filtros {
   position: sticky;
   top: 0;
@@ -260,13 +280,15 @@ h1 {
   color: var(--muted);
 }
 
-select {
+select,
+input[type="search"] {
   font: inherit;
   color: var(--ink);
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 0.45rem 0.5rem;
+  width: 100%;
 }
 
 #contagem {
@@ -277,11 +299,46 @@ select {
 
 .local {
   margin-top: 1.75rem;
+  scroll-margin-top: 6.5rem;
+  border-radius: 8px;
+  transition:
+    box-shadow 0.4s ease,
+    background-color 0.4s ease;
+}
+
+.local.destaque {
+  box-shadow: 0 0 0 3px var(--channel);
+  background: color-mix(in srgb, var(--channel) 8%, transparent);
+  padding: 0.5rem;
 }
 
 .local h2 {
   font: 700 1.3rem/1.2 var(--serif);
   margin: 0;
+}
+
+.local-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.local-link:hover {
+  color: var(--channel);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.local-pin-icon {
+  font-size: 0.95rem;
+  opacity: 0.75;
 }
 
 .tipo {
@@ -313,8 +370,21 @@ summary::-webkit-details-marker {
   display: none;
 }
 
+.peixe summary::after {
+  content: "▾";
+  color: var(--muted);
+  font-size: 0.9rem;
+  transition: transform 0.15s ease;
+  justify-self: end;
+}
+
+.peixe[open] summary::after {
+  transform: rotate(180deg);
+}
+
 summary:focus-visible,
 select:focus-visible,
+input[type="search"]:focus-visible,
 button:focus-visible {
   outline: 3px solid var(--channel);
   outline-offset: 2px;
@@ -390,6 +460,17 @@ dd {
   border: 1px dashed var(--line);
 }
 
+.btn-limpar {
+  margin-top: 0.6rem;
+  font: 600 0.85rem var(--sans);
+  color: var(--channel);
+  background: transparent;
+  border: 1px solid var(--channel);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+
 .regras {
   margin-top: 2.5rem;
   padding: 0.75rem 1rem;
@@ -412,10 +493,19 @@ dd {
   margin-top: 0.4rem;
 }
 
+@media (max-width: 39.99rem) {
+  .peixe summary {
+    grid-template-columns: 1fr auto auto;
+  }
+  .peixe summary::after {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+
 @media (min-width: 40rem) {
   summary {
-    /* Colunas fixas: Nome (flexível) | Época | Tamanho mín. | Chip de Hipóteses */
-    grid-template-columns: 1fr 11rem 6.5rem 8.5rem;
+    grid-template-columns: 1fr 11rem 6.5rem 8.5rem 1.2rem;
   }
   .epoca,
   .min {
@@ -426,6 +516,30 @@ dd {
     grid-row: auto;
     text-align: center;
   }
+}
+
+/* Botão Voltar ao Topo */
+.go-top-btn {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--channel);
+  color: var(--panel);
+  font: 700 1.1rem var(--sans);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.go-top-btn:hover {
+  transform: translateY(-2px);
 }
 
 footer {
