@@ -20,28 +20,41 @@
   --chip5-ink: #ffffff;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sticky-header-h: 5.2rem;
+  --sticky-tabs-h: 2.5rem;
+  --sticky-subtabs-h: 2.85rem;
+  --sticky-filters-h: 4.5rem;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --paper: #0f1d21;
-  --panel: #172a2f;
-  --ink: #e3eced;
-  --muted: #9bb0b4;
-  --line: #2a4248;
-  --channel: #7fc0db;
-  --pin: #7fc0db;
-  --pin-active: #e3eced;
-  --chip1: #2a3b3f;
-  --chip1-ink: #b4c6c9;
-  --chip2: #254955;
-  --chip2-ink: #c3e1ec;
-  --chip3: #2f6b82;
-  --chip3-ink: #ffffff;
-  --chip4: #5aa7c6;
-  --chip4-ink: #08222c;
-  --chip5: #9ad4ea;
-  --chip5-ink: #08222c;
+  /* Fundos: tom azul-ardósia médio-escuro, muito mais suave e legível que o quase-preto */
+  --paper: #18262b;
+  --panel: #21343b;
+
+  /* Texto: contraste AAA (> 11:1) e AA (> 5.8:1) sobre --paper e --panel */
+  --ink: #f1f6f7;
+  --muted: #b4c7cb;
+
+  /* Linhas e separadores claramente visíveis (contraste > 3:1) */
+  --line: #3b565e;
+
+  /* Destaques e pinos no mapa com alta visibilidade */
+  --channel: #8ed1eb;
+  --pin: #8ed1eb;
+  --pin-active: #ffffff;
+
+  /* Chips de probabilidade com contraste AA/AAA garantido em todos os 5 níveis */
+  --chip1: #2f434a;
+  --chip1-ink: #e2eef0; /* Contraste ~7.8:1 */
+  --chip2: #2b5463;
+  --chip2-ink: #e6f5fa; /* Contraste ~6.9:1 */
+  --chip3: #33758f;
+  --chip3-ink: #ffffff; /* Contraste ~5.1:1 */
+  --chip4: #6cb8d6;
+  --chip4-ink: #0a1f26; /* Contraste ~8.4:1 */
+  --chip5: #a5dcf0;
+  --chip5-ink: #0a1f26; /* Contraste ~11.6:1 */
 }
 
 * {
@@ -64,20 +77,28 @@ body {
 .wrap {
   max-width: 56rem;
   margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
+  padding: 0 1rem 3rem;
 }
 
+/* Cabeçalho fixo no topo sem frestas */
 .topo {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
+  padding: 0.85rem 0 0.5rem;
+  margin: 0;
+  background: var(--paper);
 }
 
 .topo-acoes {
   display: flex;
   gap: 0.45rem;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .icon-btn,
@@ -97,21 +118,28 @@ body {
 }
 
 h1 {
-  font: 700 clamp(1.8rem, 5vw, 2.6rem)/1.1 var(--serif);
-  margin: 0 0 0.4rem;
+  font: 700 clamp(1.5rem, 4.5vw, 2.3rem)/1.1 var(--serif);
+  margin: 0 0 0.25rem;
 }
 
 .sub {
-  margin: 0 0 1.25rem;
+  margin: 0;
+  font-size: 0.92rem;
   color: var(--muted);
   max-width: 40rem;
 }
 
+/* Tabs principais coladas ao cabeçalho */
 .tabs {
+  position: sticky;
+  top: var(--sticky-header-h);
+  z-index: 28;
   display: flex;
   gap: 0.5rem;
+  background: var(--paper);
   border-bottom: 1px solid var(--line);
-  margin-bottom: 1rem;
+  margin: 0;
+  padding: 0;
 }
 
 .tab {
@@ -130,11 +158,19 @@ h1 {
   border-bottom-color: var(--channel);
 }
 
-.distritos {
+/* Sub-tabs (Distritos e Amostras/Nós) coladas às tabs principais */
+.distritos,
+.equip-subtabs {
+  position: sticky;
+  top: calc(var(--sticky-header-h) + var(--sticky-tabs-h));
+  z-index: 26;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  padding: 0.55rem 0;
+  margin: 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
 }
 
 .distrito-btn {
@@ -147,10 +183,62 @@ h1 {
   cursor: pointer;
 }
 
+.distrito-btn:hover {
+  border-color: var(--channel);
+}
+
 .distrito-btn.active {
   background: var(--channel);
   color: var(--panel);
   border-color: var(--channel);
+}
+
+/* Filtros (Pesqueiros e Nós de Pesca) fixos abaixo das sub-tabs */
+.filtros,
+.equip-filters-box {
+  position: sticky;
+  top: calc(
+    var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h)
+  );
+  z-index: 24;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem;
+}
+
+.filtros label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.equip-filters-box .distritos {
+  position: static;
+  top: auto;
+  z-index: auto;
+  border-bottom: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+select,
+input[type="search"] {
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.45rem 0.5rem;
+  width: 100%;
 }
 
 /* Mapa Interativo SVG */
@@ -161,10 +249,13 @@ h1 {
   background: #cde3eb;
   border-radius: 10px;
   border: 1px solid var(--line);
-  margin-bottom: 1rem;
+  margin: 0.75rem 0 0;
   overflow: hidden;
   user-select: none;
-  scroll-margin-top: 1rem;
+  scroll-margin-top: calc(
+    var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h) +
+      var(--sticky-filters-h) + 1rem
+  );
 }
 
 [data-theme="dark"] .mapa-box {
@@ -260,37 +351,6 @@ h1 {
   opacity: 0.9;
 }
 
-/* Filtros */
-.filtros {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
-}
-
-.filtros label {
-  display: grid;
-  gap: 0.2rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-select,
-input[type="search"] {
-  font: inherit;
-  color: var(--ink);
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 0.45rem 0.5rem;
-  width: 100%;
-}
-
 #contagem {
   margin: 0.75rem 0 0;
   font-size: 0.9rem;
@@ -299,7 +359,10 @@ input[type="search"] {
 
 .local {
   margin-top: 1.75rem;
-  scroll-margin-top: 6.5rem;
+  scroll-margin-top: calc(
+    var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h) +
+      var(--sticky-filters-h) + 1rem
+  );
   border-radius: 8px;
   transition:
     box-shadow 0.4s ease,
@@ -334,11 +397,6 @@ input[type="search"] {
   color: var(--channel);
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-
-.local-pin-icon {
-  font-size: 0.95rem;
-  opacity: 0.75;
 }
 
 .tipo {
@@ -532,7 +590,7 @@ dd {
   font: 700 1.1rem var(--sans);
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 10;
+  z-index: 35;
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
@@ -549,4 +607,191 @@ footer {
   border-top: 1px solid var(--line);
   font-size: 0.85rem;
   color: var(--muted);
+}
+
+/* --- Links Interativos de Amostras & Tooltip --- */
+.amostra-ref {
+  background: none;
+  border: none;
+  border-bottom: 1.5px dashed var(--channel);
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--channel);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.amostra-ref:hover {
+  opacity: 0.8;
+}
+
+.amostra-tooltip {
+  position: absolute;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(21rem, calc(100vw - 24px));
+  padding: 0.7rem 0.85rem;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  font-size: 0.83rem;
+  pointer-events: auto;
+}
+
+.amostra-tooltip[hidden] {
+  display: none;
+}
+
+.amostra-tooltip-svg {
+  flex-shrink: 0;
+  width: 96px;
+  color: var(--ink);
+}
+
+.amostra-tooltip-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.amostra-tooltip-body strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--channel);
+  margin-bottom: 0.15rem;
+}
+
+.amostra-tooltip-body p {
+  margin: 0 0 0.3rem;
+  line-height: 1.35;
+}
+
+.amostra-tooltip-hint {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* --- Secção Equipamento & Guias Visuais --- */
+.equip-grid {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.75rem;
+}
+
+.equip-card {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  scroll-margin-top: calc(
+    var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h) +
+      var(--sticky-filters-h) + 1rem
+  );
+  transition:
+    box-shadow 0.4s ease,
+    background-color 0.4s ease;
+}
+
+.equip-card.destaque {
+  box-shadow: 0 0 0 3px var(--channel);
+  background: color-mix(in srgb, var(--channel) 8%, var(--panel));
+}
+
+.equip-card-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+}
+
+.equip-card-visual svg {
+  width: 100%;
+  max-width: 145px;
+  height: auto;
+  display: block;
+}
+
+.equip-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.equip-card-header h3 {
+  margin: 0;
+  font: 700 1.1rem/1.2 var(--serif);
+}
+
+.equip-tag {
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--chip2);
+  color: var(--chip2-ink);
+}
+
+.equip-desc {
+  margin: 0 0 0.45rem;
+  font-size: 0.92rem;
+}
+
+.equip-use {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.equip-use strong {
+  color: var(--ink);
+}
+
+.equip-link-wrap {
+  margin: 0.6rem 0 0;
+}
+
+.equip-decathlon-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--channel);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.equip-decathlon-link:hover {
+  border-color: var(--channel);
+}
+
+@media (max-width: 36rem) {
+  .equip-card {
+    grid-template-columns: 1fr;
+  }
+  .equip-card-visual {
+    max-width: 220px;
+  }
 }

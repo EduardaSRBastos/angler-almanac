@@ -1,12 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Almanaque do Pescador · Angler's Almanac</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Almanaque do Pescador</title>
   <meta name="description"
-    content="Almanaque do Pescador (Angler's Almanac) — guia prático de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais." />
+    content="Almanaque do Pescador: guia prático de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais." />
   <meta name="keywords"
     content="Almanaque do Pescador, Angler's Almanac, guia de pesca, pesqueiros, épocas de pesca, Ria de Aveiro, fishing guide, fishing spots, fishing seasons, fishing gear, fishing rods" />
 
@@ -19,7 +18,7 @@
   <meta property="og:locale:alternate" content="en_US" />
   <meta property="og:title" content="Almanaque do Pescador · Angler's Almanac" />
   <meta property="og:description"
-    content="Guia de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais. / A fishing guide with top spots, what to catch and when, gear tips, and rules." />
+    content="Guia prático de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais. / A fishing guide with top spots, what to catch and when, gear tips, and rules." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://eduardasrbastos.github.io/angler-almanac" />
   <meta property="og:image" content="https://eduardasrbastos.github.io/angler-almanac/assets/images/preview.png" />
@@ -28,7 +27,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Almanaque do Pescador · Angler's Almanac" />
   <meta name="twitter:description"
-    content="Guia de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento e regras. / A fishing guide with top spots, seasons, and gear tips." />
+    content="Guia prático de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento e regras. / A fishing guide with top spots, seasons, and gear tips." />
   <meta name="twitter:image" content="https://eduardasrbastos.github.io/angler-almanac/assets/images/preview.png" />
 
   <link rel="canonical" href="https://eduardasrbastos.github.io/angler-almanac" />
@@ -41,34 +40,39 @@
     <header class="topo">
       <div>
         <h1 id="site-title">Almanaque do Pescador</h1>
-        <p class="sub" id="site-sub">Guia prático de pesqueiros, épocas, iscos e regras.</p>
+        <p id="site-sub" class="sub">
+          Guia prático de pesqueiros, épocas, iscos e regras.
+        </p>
       </div>
       <div class="topo-acoes">
-        <button id="theme-toggle" class="icon-btn" type="button" aria-label="Mudar tema" title="Mudar tema">🌙</button>
-        <button id="lang-toggle" class="lang-btn" type="button" aria-label="Mudar idioma">EN</button>
+        <button type="button" id="theme-toggle" class="icon-btn" aria-label="Alternar tema">
+          🌙
+        </button>
+        <button type="button" id="lang-toggle" class="lang-btn">EN</button>
       </div>
     </header>
 
-    <!-- Navegação principal (Tabs) -->
     <nav class="tabs" role="tablist">
-      <button class="tab active" data-tab="pesqueiros" role="tab" aria-selected="true"
-        id="tab-pesqueiros">Pesqueiros</button>
-      <button class="tab" data-tab="equipamento" role="tab" aria-selected="false"
-        id="tab-equipamento">Equipamento</button>
+      <button type="button" id="tab-pesqueiros" class="tab active" role="tab" aria-selected="true"
+        data-tab="pesqueiros">
+        Pesqueiros
+      </button>
+      <button type="button" id="tab-equipamento" class="tab" role="tab" aria-selected="false" data-tab="equipamento">
+        Equipamento
+      </button>
     </nav>
 
-    <!-- TAB 1: Pesqueiros -->
-    <main id="panel-pesqueiros" class="tab-panel active">
-      <!-- Seleção de Distritos -->
-      <div class="distritos" id="distritos-bar">
-        <button class="distrito-btn active" data-distrito="aveiro" type="button">Aveiro</button>
+    <!-- PAINEL PESQUEIROS -->
+    <main id="panel-pesqueiros" class="tab-panel">
+      <div class="distritos">
+        <button type="button" class="distrito-btn active" data-distrito="aveiro">
+          Aveiro
+        </button>
       </div>
 
-      <!-- Contentor do Mapa -->
       <div id="mapa-pesqueiros" class="mapa-box"></div>
 
-      <!-- Filtros existentes + Pesquisa de local -->
-      <section class="filtros">
+      <form class="filtros" onsubmit="return false">
         <label>
           <span id="lbl-busca">Local</span>
           <input type="search" id="busca" placeholder="Pesquisar local..." />
@@ -89,33 +93,57 @@
           <span id="lbl-hip">Hipóteses de captura</span>
           <select id="hip"></select>
         </label>
-      </section>
+      </form>
 
-      <p id="contagem"></p>
+      <p id="contagem" aria-live="polite"></p>
       <div id="lista"></div>
 
       <details class="regras">
         <summary id="regras-titulo">Regras a confirmar antes de ires</summary>
-        <ul id="regras-lista">
-          <li>Precisas de licença de pesca lúdica marítima. Quem pesca robalo tem de registar as capturas na app
-            RecFishing.</li>
-          <li>Dentro da Ria: anzol com abertura mínima de 8 mm, no máximo 3 anzóis por cana, e é proibido iscar ou
-            engodar com ovas de peixe.</li>
-          <li>Defesos de isco (captura e venda): minhoca-da-lama de 1 mar a 30 abr, casulo de 1 mai a 30 jun.</li>
-          <li>Molhe Norte: segundo as normas do Porto de Aveiro de 2021, num troço do lado da Ria a pesca apeada está
-            interdita de 1 out a 30 abr. Confirma o troço.</li>
+        <ul>
+          <li>
+            Precisas de licença de pesca lúdica marítima. Quem pesca robalo
+            tem de registar as capturas na app RecFishing.
+          </li>
+          <li>
+            Dentro da Ria: anzol com abertura mínima de 8 mm, no máximo 3
+            anzóis por cana, e é proibido iscar ou engodar com ovas de peixe.
+          </li>
+          <li>
+            Defesos de isco (captura e venda): minhoca-da-lama de 1 mar a 30
+            abr, casulo de 1 mai a 30 jun.
+          </li>
+          <li>
+            Molhe Norte: segundo as normas do Porto de Aveiro de 2021, num
+            troço do lado da Ria a pesca apeada está interdita de 1 out a 30
+            abr. Confirma o troço.
+          </li>
           <li>Não pesques nos molhes com ondulação forte.</li>
-          <li>Não comas peixe apanhado na zona de Estarreja e da bacia do Laranjo, onde há mercúrio.</li>
-          <li>Os tamanhos mínimos são os da tabela da DGRM. Peixe abaixo desse tamanho devolve-se à água.</li>
+          <li>
+            Não comas peixe apanhado na zona de Estarreja e da bacia do
+            Laranjo, onde há mercúrio.
+          </li>
+          <li>
+            Os tamanhos mínimos são os da tabela da DGRM. Peixe abaixo desse
+            tamanho devolve-se à água.
+          </li>
         </ul>
       </details>
     </main>
 
-    <!-- TAB 2: Equipamento (Placeholder para futuro conteúdo) -->
+    <!-- PAINEL EQUIPAMENTO -->
     <section id="panel-equipamento" class="tab-panel" hidden>
-      <div class="vazio" id="equipamento-placeholder">
-        Em breve: guia de tipos de canas, montagens e carretos.
+      <div class="sub-tabs" role="tablist">
+        <button type="button" id="subtab-amostras" class="subtab-btn active" data-subtab="amostras">
+          Amostras
+        </button>
+        <button type="button" id="subtab-nos" class="subtab-btn" data-subtab="nos">
+          Nós de Pesca
+        </button>
       </div>
+
+      <div id="subpanel-amostras" class="subpanel"></div>
+      <div id="subpanel-nos" class="subpanel" hidden></div>
     </section>
 
     <footer>
@@ -123,12 +151,18 @@
     </footer>
   </div>
 
-  <!-- Botão Voltar ao Topo -->
-  <button id="go-top" class="go-top-btn" type="button" aria-label="Voltar ao topo" title="Voltar ao topo"
-    hidden>↑</button>
+  <!-- Tooltip flutuante para amostras -->
+  <div id="lure-tooltip" class="lure-tooltip" role="tooltip" hidden></div>
+
+  <button type="button" id="go-top" class="go-top-btn" aria-label="Voltar ao topo" hidden>
+    ↑
+  </button>
 
   <script src="data.js"></script>
-  <script src="index.js"></script>
+  <script src="config-i18n.js"></script>
+  <script src="map.js"></script>
+  <script src="equip.js"></script>
+  <script src="app.js"></script>
 </body>
 
 </html>
