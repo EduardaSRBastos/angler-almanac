@@ -1,16 +1,17 @@
 :root {
   color-scheme: light;
-  --paper: #eef2f2;
-  --panel: #ffffff;
+  --paper: #f0f7f7;
+  --panel: #f5fcff;
+  --panel-alt: #e8f5fa;
   --ink: #16282d;
   --muted: #566b70;
   --line: #cbd7d8;
   --channel: #1f6584;
   --pin: #3d86a5;
   --pin-active: #c3e1ec;
-  --chip1: #dfe5e6;
+  --chip1: #c7dfe4;
   --chip1-ink: #435357;
-  --chip2: #d3e4ea;
+  --chip2: #95c3d4;
   --chip2-ink: #1d4a5e;
   --chip3: #a9cfdd;
   --chip3-ink: #0f3a4d;
@@ -28,33 +29,25 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  /* Fundos: tom azul-ardósia médio-escuro, muito mais suave e legível que o quase-preto */
   --paper: #18262b;
   --panel: #21343b;
-
-  /* Texto: contraste AAA (> 11:1) e AA (> 5.8:1) sobre --paper e --panel */
+  --panel-alt: #2f4a53;
   --ink: #f1f6f7;
   --muted: #b4c7cb;
-
-  /* Linhas e separadores claramente visíveis (contraste > 3:1) */
   --line: #3b565e;
-
-  /* Destaques e pinos no mapa com alta visibilidade */
   --channel: #8ed1eb;
   --pin: #8ed1eb;
   --pin-active: #ffffff;
-
-  /* Chips de probabilidade com contraste AA/AAA garantido em todos os 5 níveis */
-  --chip1: #2f434a;
-  --chip1-ink: #e2eef0; /* Contraste ~7.8:1 */
+  --chip1: #10262e;
+  --chip1-ink: #e2eef0;
   --chip2: #2b5463;
-  --chip2-ink: #e6f5fa; /* Contraste ~6.9:1 */
+  --chip2-ink: #e6f5fa;
   --chip3: #33758f;
-  --chip3-ink: #ffffff; /* Contraste ~5.1:1 */
+  --chip3-ink: #ffffff;
   --chip4: #6cb8d6;
-  --chip4-ink: #0a1f26; /* Contraste ~8.4:1 */
+  --chip4-ink: #0a1f26;
   --chip5: #a5dcf0;
-  --chip5-ink: #0a1f26; /* Contraste ~11.6:1 */
+  --chip5-ink: #0a1f26;
 }
 
 * {
@@ -405,9 +398,14 @@ input[type="search"] {
   color: var(--channel);
 }
 
+/* Linhas alternadas (zebra) na tabela de espécies */
 .peixe {
   border-top: 1px solid var(--line);
   background: var(--panel);
+}
+
+.peixe:nth-of-type(even) {
+  background: var(--panel-alt);
 }
 
 .peixe:last-child {
@@ -609,6 +607,11 @@ footer {
   color: var(--muted);
 }
 
+footer a{
+  color: var(--channel);
+  cursor: pointer;
+}
+
 /* --- Links Interativos de Amostras & Tooltip --- */
 .amostra-ref {
   background: none;
@@ -684,6 +687,7 @@ footer {
   margin-top: 0.75rem;
 }
 
+/* Cartões alternados (zebra) nas Amostras e Nós de Pesca */
 .equip-card {
   display: grid;
   grid-template-columns: 160px 1fr;
@@ -700,6 +704,10 @@ footer {
   transition:
     box-shadow 0.4s ease,
     background-color 0.4s ease;
+}
+
+.equip-card:nth-child(even) {
+  background: var(--panel-alt);
 }
 
 .equip-card.destaque {

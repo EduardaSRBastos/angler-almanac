@@ -1,50 +1,6 @@
-const $ = (id) => document.getElementById(id);
-
-let currentLang = "pt";
-let currentDistrito = "aveiro";
-let selectedLocal = null;
-let currentGroups = new Map();
-
-// --- Gestão de Tema (Claro / Escuro) ---
-const themeBtn = $("theme-toggle");
-function applyTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
-  themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
-  localStorage.setItem("almanac-theme", theme);
-}
-
-const savedTheme =
-  localStorage.getItem("almanac-theme") ||
-  (window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light");
-applyTheme(savedTheme);
-
-themeBtn.addEventListener("click", () => {
-  const next =
-    document.documentElement.getAttribute("data-theme") === "dark"
-      ? "light"
-      : "dark";
-  applyTheme(next);
-});
-
-$("year").textContent = new Date().getFullYear();
-
-// --- Botão Voltar ao Topo ---
-const goTopBtn = $("go-top");
-window.addEventListener(
-  "scroll",
-  () => {
-    goTopBtn.hidden = window.scrollY < 320;
-  },
-  { passive: true },
-);
-
-goTopBtn.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-// --- Filtros e Renderização da Lista ---
+// =========================================================
+// PESQUEIROS: FILTROS, IDIOMA E RENDERIZAÇÃO DA LISTA
+// =========================================================
 const els = {
   busca: $("busca"),
   mes: $("mes"),
@@ -218,143 +174,25 @@ function render() {
   });
 }
 
-// Eventos dos filtros
+// --- Eventos de Filtros e Idioma ---
 ["mes", "tipo", "peixe", "hip"].forEach((id) =>
-  els[id].addEventListener("change", render),
+  els[id].addEventListener("change", () => {
+    render();
+    scrollPageToTop();
+  }),
 );
-els.busca.addEventListener("input", render);
 
-// Evento do botão PT / EN
+els.busca.addEventListener("input", () => {
+  render();
+  scrollPageToTop();
+});
+
 $("lang-toggle").addEventListener("click", () => {
   currentLang = currentLang === "pt" ? "en" : "pt";
   applyLanguage();
 });
 
-// Eventos dos separadores (Tabs)
-document.querySelectorAll(".tab").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((b) => {
-      b.classList.remove("active");
-      b.setAttribute("aria-selected", "false");
-    });
-    btn.classList.add("active");
-    btn.setAttribute("aria-selected", "true");
-
-    const target = btn.dataset.tab;
-    document.querySelectorAll(".tab-panel").forEach((panel) => {
-      panel.hidden = panel.id !== `panel-${target}`;
-    });
-    syncStickyHeights();
-  });
-});
-
-// Eventos dos botões de Distrito
-document
-  .querySelectorAll(".distrito-btn:not(.equip-subtab-btn)")
-  .forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".distrito-btn:not(.equip-subtab-btn)")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentDistrito = btn.dataset.distrito;
-      selectedLocal = null;
-      populateFilters(false);
-      render();
-    });
-  });
-
-// --- Sincronização de Alturas Sticky & Scroll para o Topo ---
-function syncStickyHeights() {
-  const root = document.documentElement;
-  const header = document.querySelector(".topo");
-  const tabs = document.querySelector(".tabs");
-  const activePanel = document.querySelector(".tab-panel:not([hidden])");
-  const activeSubtabs = activePanel
-    ? activePanel.querySelector(".distritos, .equip-subtabs")
-    : null;
-  const activeFilters = activePanel
-    ? activePanel.querySelector(".filtros, .equip-filters-box")
-    : null;
-
-  if (header && header.offsetHeight > 0) {
-    root.style.setProperty("--sticky-header-h", `${header.offsetHeight}px`);
-  }
-  if (tabs && tabs.offsetHeight > 0) {
-    root.style.setProperty("--sticky-tabs-h", `${tabs.offsetHeight}px`);
-  }
-  if (activeSubtabs && activeSubtabs.offsetHeight > 0) {
-    root.style.setProperty(
-      "--sticky-subtabs-h",
-      `${activeSubtabs.offsetHeight}px`,
-    );
-  }
-  if (activeFilters && activeFilters.offsetHeight > 0) {
-    root.style.setProperty(
-      "--sticky-filters-h",
-      `${activeFilters.offsetHeight}px`,
-    );
-  } else {
-    root.style.setProperty("--sticky-filters-h", "0px");
-  }
-}
-
-function scrollPageToTop() {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
-  document.body.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-const equipPanel = $("panel-equipamento");
-if (equipPanel && typeof MutationObserver !== "undefined") {
-  const observer = new MutationObserver(() => {
-    requestAnimationFrame(syncStickyHeights);
-  });
-  observer.observe(equipPanel, {
-    childList: true,
-    subtree: true,
-  });
-}
-
-window.addEventListener("load", syncStickyHeights);
-window.addEventListener("resize", syncStickyHeights);
-
-document.addEventListener("click", (e) => {
-  const clickedNav = e.target.closest(
-    ".tab, .equip-subtab-btn, .distrito-btn:not(.equip-cat-btn):not(.equip-diff-btn)",
-  );
-  const clickedEquipFilter = e.target.closest(
-    ".equip-cat-btn, .equip-diff-btn",
-  );
-
-  if (clickedNav || clickedEquipFilter || e.target.closest("#lang-toggle")) {
-    requestAnimationFrame(() => {
-      syncStickyHeights();
-      requestAnimationFrame(() => {
-        syncStickyHeights();
-        if (clickedNav) {
-          scrollPageToTop();
-        }
-      });
-    });
-  }
-});
-
-// Ao escrever ou selecionar qualquer filtro nos Pesqueiros (Local, Mês, Tipo de água, Espécie, Hipóteses de captura),
-// sobe suavemente até ao topo para mostrar os novos resultados imediatamente
-document.addEventListener("input", (e) => {
-  if (e.target.closest(".filtros #busca")) {
-    scrollPageToTop();
-  }
-});
-
-document.addEventListener("change", (e) => {
-  if (e.target.closest(".filtros select")) {
-    scrollPageToTop();
-  }
-});
-
-// Inicialização
+// --- Inicialização da Aplicação ---
 if (typeof initMap === "function") {
   initMap();
 }

@@ -270,12 +270,12 @@ const EQUIP_DATA = {
       videoUrl:
         "https://www.youtube.com/results?search_query=como+fazer+no+palomar+pesca",
       desc: {
-        pt: "O nó nº 1 para iniciantes: super rápido, quase impossível de errar e mantém quase 100% da força da linha em multifilamento ou monofilamento.",
-        en: "The #1 knot for beginners: super fast, nearly foolproof, and retains almost 100% line strength with braid or mono.",
+        pt: "Nó de fixação direta compacto e de altíssima resistência que passa a linha dobrada pelo olhal, evitando que o multifilamento escorregue ou parta sob tração.",
+        en: "Compact, high-strength terminal knot that passes doubled line through the eye, preventing braided line from slipping or cutting under load.",
       },
       use: {
-        pt: "1. Dobra a linha e passa a alça pelo olhal · 2. Faz um nó simples com a alça · 3. Passa o anzol/snap por dentro da alça · 4. Humedece e aperta.",
-        en: "1. Double the line and pass loop through eye · 2. Tie an overhand knot · 3. Pass hook/snap through the loop · 4. Wet and pull tight.",
+        pt: "Serve para prender destorcedores, snaps (alfinetes), anzóis de olhal largo e amostras diretamente à linha. Usa-se no spinning, bóia ou fundo — sobretudo com multifilamento ou quando precisas de trocar rápido de montagem ao vento ou à noite.",
+        en: "Used to tie swivels, snaps, wide-eye hooks, and lures directly to the line. Best for spinning, float, or bottom fishing—especially with slippery braid or when re-rigging quickly at night or in wind.",
       },
       svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="34" cy="32" r="10" stroke="var(--channel)" stroke-width="2.5"/>
@@ -296,12 +296,12 @@ const EQUIP_DATA = {
       videoUrl:
         "https://www.youtube.com/results?search_query=como+fazer+no+clinch+melhorado+pesca",
       desc: {
-        pt: "Alternativa clássica ao Palomar quando o olhal do anzol ou da amostra é demasiado estreito para passar a linha dobrada.",
-        en: "Classic alternative to the Palomar when the hook or lure eye is too narrow for doubled line.",
+        pt: "Nó clássico de espiras enroladas sobre a linha principal e travadas na base, apresentando um perfil mais fino junto ao olhal do que o nó Palomar.",
+        en: "Classic wrapped terminal knot locked at the base, offering a slimmer entry at the hook eye than the Palomar knot.",
       },
       use: {
-        pt: "1. Passa pelo olhal e dá 5 a 7 voltas à linha principal · 2. Passa a ponta pela primeira argola junto ao olhal · 3. Volta a passar a ponta pela nova laçada formada.",
-        en: "1. Thread eye and wrap 5–7 times around standing line · 2. Pass tag through first loop near eye · 3. Thread tag back through the newly formed big loop.",
+        pt: "Serve para atar anzóis pequenos, destorcedores, chumbadas com argola ou amostras onde a linha dobrada não cabe no olhal. Ideal com monofilamento e fluorocarbono fino/médio na pesca à bóia, ao fundo ou spinning ligeiro.",
+        en: "Used to tie small hooks, swivels, ringed sinkers, or lures where doubled line will not fit through the eye. Ideal with mono and light-to-medium fluorocarbon in float, bottom, or light spinning.",
       },
       svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="28" cy="32" r="9" stroke="var(--channel)" stroke-width="2.5"/>
@@ -322,12 +322,12 @@ const EQUIP_DATA = {
       videoUrl:
         "https://www.youtube.com/results?search_query=como+fazer+laco+cirurgiao+pesca",
       desc: {
-        pt: "Faz um laço firme na ponta da linha em 5 segundos sem escorregar. Ideal para engatar estralhos num destorcedor (sistema laço-com-laço).",
-        en: "Creates a strong, non-slip end loop in 5 seconds. Ideal for attaching leaders to swivels (loop-to-loop).",
+        pt: "Nó de argola fixa com dupla passagem que trava firmemente sob tração sem correr nem estrangular a linha, sendo muito mais seguro que um laço simples.",
+        en: "Double-passed fixed loop knot that locks securely under tension without slipping or closing, far stronger than a simple overhand loop.",
       },
       use: {
-        pt: "1. Dobra a ponta da linha formando uma alça · 2. Dá um nó simples com a linha dobrada · 3. Passa a alça uma segunda vez por dentro · 4. Humedece e aperta.",
-        en: "1. Double the line end into a bight · 2. Tie an overhand knot with the doubled line · 3. Pass the loop through a second time · 4. Wet and tighten.",
+        pt: "Serve para criar uma argola na ponta do estralho para engatar num destorcedor (sistema laço-com-laço) ou trocar anzóis empatados sem cortar linha. Usa-se na pesca ao fundo, surfcasting e bóia para substituir rapidamente estralhos partidos ou embaraçados.",
+        en: "Used to form an end loop on a leader for loop-to-loop swivel connections or quick hook-length swaps without cutting line. Very practical in bottom, surfcasting, and float fishing.",
       },
       svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M168 32 L96 32"/>
@@ -348,12 +348,12 @@ const EQUIP_DATA = {
       videoUrl:
         "https://www.youtube.com/results?search_query=como+fazer+no+rapala+pesca",
       desc: {
-        pt: "Cria um laço fixo que não corre nem fecha sob tensão, deixando a amostra nadar livremente e com movimento muito mais natural.",
-        en: "Creates a fixed loop that never slips or closes under load, letting lures swim freely with natural action.",
+        pt: "Laço rígido e aberto atado diretamente no olhal da amostra que não fecha sob esforço, dando total liberdade de articulação ao artificial.",
+        en: "Open, non-slip loop tied directly to a lure eye that stays open under load, giving hard lures unrestricted swimming freedom.",
       },
       use: {
-        pt: "1. Faz um nó simples aberto a 10 cm da ponta · 2. Passa pelo olhal da amostra e volta pelo nó simples · 3. Dá 3 a 4 voltas na linha principal · 4. Volta pelo nó simples e pela argola formada.",
-        en: "1. Tie a loose overhand knot 10 cm from tag · 2. Thread lure eye and back through overhand knot · 3. Wrap 3–4 times around standing line · 4. Pass back through overhand knot and new loop.",
+        pt: "Serve para prender amostras (minnows, passeantes, toneiras) diretamente ao fluorocarbono sem usar snap metálico. Usa-se em águas muito claras, com robalos desconfiados de dia ou em amostras pequenas cujo nadar ficaria pesado com um alfinete.",
+        en: "Used to attach lures (minnows, topwaters, squid jigs) directly to fluorocarbon without a metal snap. Best in clear water, for wary daytime sea bass, or with small lures whose action a clip would dampen.",
       },
       svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M168 32 L112 32"/>
@@ -375,12 +375,12 @@ const EQUIP_DATA = {
       videoUrl:
         "https://www.youtube.com/results?search_query=como+fazer+no+uni+duplo+pesca",
       desc: {
-        pt: "A forma mais simples para iniciantes unirem multifilamento a fluorocarbono ou remendarem linhas: são apenas dois nós iguais frente a frente.",
-        en: "The easiest way for beginners to join braid to fluorocarbon or splice two lines: simply two identical knots tied facing each other.",
+        pt: "Nó de emenda simétrico composto por dois nós Uni opostos que deslizam um contra o outro até encostarem e travarem com segurança.",
+        en: "Symmetrical line-to-line splice made of two opposing Uni knots that slide together and lock securely against each other.",
       },
       use: {
-        pt: "1. Sobrepõe as duas pontas (15 cm) · 2. Faz um nó Uni (4–5 voltas) com a linha A em torno da B · 3. Faz o mesmo com a linha B em torno da A · 4. Humedece e puxa até encostarem.",
-        en: "1. Overlap both line ends (15 cm) · 2. Tie a 4–5 turn Uni knot with line A around B · 3. Repeat with line B around A · 4. Wet and slide together.",
+        pt: "Serve para unir duas linhas de diâmetro igual ou semelhante — por exemplo, ligar a linha mãe (multifilamento ou nylon) a um estralho de fluorocarbono, ou emendar uma linha partida na praia. Ideal no spinning, bóia ou surfcasting em qualquer pesqueiro.",
+        en: "Used to join two lines of equal or similar diameter—such as connecting mainline braid or mono to a fluorocarbon leader, or repairing a snapped line on the beach. Great for spinning, float, or surfcasting.",
       },
       svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="30" x2="112" y2="30" stroke="var(--channel)" stroke-width="2.2"/>
@@ -402,12 +402,12 @@ const EQUIP_DATA = {
       videoUrl:
         "https://www.youtube.com/results?search_query=como+fazer+no+albright+pesca",
       desc: {
-        pt: "Excelente quando uma linha é bastante mais grossa que a outra (ex.: multifilamento 0.14 mm ligado a fluorocarbono 0.35 mm), passando bem pelos passadores.",
-        en: "Ideal when one line is noticeably thicker than the other (e.g., 0.14 mm braid to 0.35 mm leader), sliding smoothly through guides.",
+        pt: "Nó cónico de perfil alongado em que a linha mais fina envolve uma dobra da linha mais grossa, evitando dobras bruscas e reduzindo o atrito.",
+        en: "Slim, tapered splice where the thinner line wraps over a doubled loop of the thicker line, avoiding sharp bends and reducing guide friction.",
       },
       use: {
-        pt: "1. Faz uma curva em U com o fluorocarbono · 2. Enrola o multifilamento 8 a 10 vezes por cima da curva · 3. Passa a ponta pelo olhal da curva no mesmo sentido em que entrou.",
-        en: "1. Form a U-loop with the thicker leader · 2. Wrap braid 8–10 turns back over the loop · 3. Exit tag through the U-loop in the same direction it entered.",
+        pt: "Serve para unir um multifilamento fino a um baixo de fluorocarbono grosso ou a um chicote de arranque. Usa-se em molhes, rochas e zonas com mexilhão onde precisas de um estralho resistente à abrasão sem um nó volumoso que bata nos passadores.",
+        en: "Used to join thin braided mainline to a heavy fluorocarbon leader or surfcasting shock leader. Essential around rocky jetties and mussel beds where abrasion resistance and smooth guide passage matter.",
       },
       svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 27 L122 27 C134 27, 134 37, 122 37 L12 37" stroke="var(--channel)" stroke-width="2.5"/>
@@ -427,12 +427,12 @@ const EQUIP_DATA = {
       videoUrl:
         "https://www.youtube.com/results?search_query=como+fazer+no+fg+pesca+facil",
       desc: {
-        pt: "O nó mais fino e resistente do mundo para spinning, pois não tem volume extra. Requer prática em casa antes de tentar fazer na praia com vento.",
-        en: "The slimmest, strongest spinning leader knot with zero bulk. Best practiced at home before tying on a windy beach.",
+        pt: "Nó de fricção ultrafino em que o multifilamento entrelaça o fluorocarbono em linha reta sem criar caroço nem dobrar o estralho.",
+        en: "Ultra-slim friction splice where braided line grips a straight fluorocarbon leader without creating a bulky knot or bending the leader.",
       },
       use: {
-        pt: "1. Mantém o multifilamento esticado · 2. Faz 16 a 20 tranças alternadas com o fluorocarbono · 3. Trava com 3 meios-nós (half hitches) · 4. Aperta com força para 'morder' o fluorocarbono.",
-        en: "1. Keep braid under tension · 2. Alternate 16–20 wraps around leader · 3. Lock with 3 half-hitches · 4. Pull tight so braid bites into leader.",
+        pt: "Serve para ligar multifilamento a estralhos compridos de fluorocarbono (1,5 m a 3 m) que entram dentro dos passadores ao lançar. Usa-se no spinning de praia ou molhes quando precisas de ganhar metros extra no lançamento sem prender nos passadores.",
+        en: "Used to join braided mainline to long fluorocarbon leaders (1.5 m–3 m) that wind through rod guides during the cast. Ideal for beach or jetty spinning when maximum casting distance is needed.",
       },
       svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="32" x2="128" y2="32" stroke="var(--channel)" stroke-width="3"/>
@@ -452,12 +452,12 @@ const EQUIP_DATA = {
       videoUrl:
         "https://www.youtube.com/results?search_query=como+fazer+no+de+correr+pesca+boia",
       desc: {
-        pt: "Pequeno nó feito com um pedaço de linha sobre a linha principal para travar a bóia de correr na profundidade desejada sem empatar o lançamento.",
-        en: "Small auxiliary thread knot tied onto the mainline to set sliding float depth without hindering casts.",
+        pt: "Pequeno nó auxiliar atado à volta da linha principal que desliza por fricção quando ajustado à mão, funcionando como batente regulável.",
+        en: "Small auxiliary thread knot tied around the mainline that slides under finger pressure to act as an adjustable depth stop.",
       },
       use: {
-        pt: "Pesca à bóia em molhes e cais · Desliza-se para cima ou para baixo na linha mãe conforme a profundidade do pesqueiro.",
-        en: "Float fishing off jetties and piers · Slide up or down the mainline to match water depth.",
+        pt: "Serve para definir a profundidade a que o isco trabalha nas montagens de bóia de correr (acompanhado de uma missanga). Usa-se em molhes fundos, pontões ou cais onde a altura da água é maior que o comprimento da cana.",
+        en: "Used to set bait depth on sliding float rigs (paired with a small bead). Essential off deep jetties, piers, or harbors where water depth exceeds rod length.",
       },
       svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="32" x2="168" y2="32"/>

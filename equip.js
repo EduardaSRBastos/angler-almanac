@@ -85,6 +85,7 @@ function renderEquipamento() {
       amostras: "Amostras",
       nos: "Nós de Pesca",
       uso: "Quando / como usar",
+      usoNo: "Para que serve / quando usar",
       decathlon: "Ver na Decathlon ↗",
       tutorialImg: "Imagem Tutorial ↗",
       tutorialVid: "Vídeo Tutorial ↗",
@@ -109,6 +110,7 @@ function renderEquipamento() {
       amostras: "Lures",
       nos: "Fishing Knots",
       uso: "When / how to use",
+      usoNo: "Purpose & when to use",
       decathlon: "View on Decathlon ↗",
       tutorialImg: "Image Tutorial ↗",
       tutorialVid: "Video Tutorial ↗",
@@ -179,6 +181,8 @@ function renderEquipamento() {
       "background:rgba(239,68,68,0.16);color:#b91c1c;border:1px solid rgba(239,68,68,0.35);",
   };
 
+  const usoLabel = currentEquipSubtab === "nos" ? labels.usoNo : labels.uso;
+
   panel.innerHTML = `
     <div class="distritos equip-subtabs" role="tablist">
       <button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "amostras" ? "active" : ""}" data-subtab="amostras">${labels.amostras}</button>
@@ -229,7 +233,7 @@ function renderEquipamento() {
               ${badgesHtml}
             </div>
             <p class="equip-desc">${item.desc[lang]}</p>
-            <p class="equip-use"><strong>${labels.uso}:</strong> ${item.use[lang]}</p>
+            <p class="equip-use"><strong>${usoLabel}:</strong> ${item.use[lang]}</p>
             ${
               links.length
                 ? `<p class="equip-link-wrap" style="display:flex;flex-wrap:wrap;gap:8px;">${links.join("")}</p>`
@@ -268,6 +272,10 @@ function renderEquipamento() {
 function jumpToAmostra(amostraId) {
   hideAmostraTooltip(0);
 
+  if (typeof skipNextScrollToTop !== "undefined") {
+    skipNextScrollToTop = true;
+  }
+
   const equipTab = document.getElementById("tab-equipamento");
   if (equipTab) {
     equipTab.click();
@@ -276,14 +284,23 @@ function jumpToAmostra(amostraId) {
   currentEquipSubtab = "amostras";
   renderEquipamento();
 
+  if (typeof syncStickyHeights === "function") {
+    syncStickyHeights();
+  }
+
   requestAnimationFrame(() => {
-    const card = document.getElementById(`equip-${amostraId}`);
-    if (!card) return;
-    card.scrollIntoView({ behavior: "smooth", block: "center" });
-    card.classList.remove("destaque");
-    void card.offsetWidth;
-    card.classList.add("destaque");
-    setTimeout(() => card.classList.remove("destaque"), 2200);
+    requestAnimationFrame(() => {
+      if (typeof syncStickyHeights === "function") {
+        syncStickyHeights();
+      }
+      const card = document.getElementById(`equip-${amostraId}`);
+      if (!card) return;
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+      card.classList.remove("destaque");
+      void card.offsetWidth;
+      card.classList.add("destaque");
+      setTimeout(() => card.classList.remove("destaque"), 2200);
+    });
   });
 }
 
