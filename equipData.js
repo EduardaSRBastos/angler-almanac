@@ -384,3 +384,121 @@ const EQUIP_DATA = {
     },
   ],
 };
+
+if (typeof EQUIP_DATA !== "undefined") {
+  EQUIP_DATA.montagens = [
+    {
+      id: "montagem-spinning",
+      name: {
+        pt: "Montagem de Spinning (Robalo / Baila)",
+        en: "Spinning Rig (Sea Bass / Spotted Bass)"
+      },
+      tag: {
+        pt: "Ria, Molhes e Praia · Amostras Artificiais",
+        en: "Estuary, Jetties & Surf · Artificial Lures"
+      },
+      desc: {
+        pt: "Ordem: Carreto (Multifilamento 0,14–0,18 mm) → Nó Uni Duplo ou Albright → Estralho de Fluorocarbono (0,30–0,40 mm, 1 m a 1,5 m) → Nó Palomar → Snap (Alfinete) → Amostra (Minnow, Vinil ou Passeante).",
+        en: "Order: Reel (0.14–0.18 mm Braid) → Double Uni or Albright Knot → Fluorocarbon Leader (0.30–0.40 mm, 1–1.5 m) → Palomar Knot → Snap → Lure (Minnow, Shad, or Topwater)."
+      },
+      use: {
+        pt: "O fluorocarbono torna a linha invisível junto à amostra e aguenta o roçar nas pedras e ostras dos cais da Ria de Aveiro e molhes da Barra. O snap permite trocar de amostra em segundos sem cortar linha.",
+        en: "Fluorocarbon keeps the terminal end invisible and resists abrasion against rocks and oysters in Aveiro's piers and jetties. The snap lets you swap lures in seconds without re-tying."
+      },
+      svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="32" x2="54" y2="32" stroke-width="2.2"/>
+        <circle cx="58" cy="32" r="3.5" fill="var(--channel)"/>
+        <line x1="62" y1="32" x2="112" y2="32" stroke="var(--channel)" stroke-width="2" stroke-dasharray="4 2"/>
+        <rect x="112" y="29" width="10" height="6" rx="3" stroke="currentColor"/>
+        <path d="M124 32 C138 22, 158 24, 170 32 C158 40, 138 42, 124 32 Z" fill="var(--channel)" fill-opacity="0.22"/>
+        <circle cx="132" cy="30" r="1.8" fill="currentColor"/>
+      </svg>`
+    },
+    {
+      id: "montagem-fundo",
+      name: {
+        pt: "Montagem de Fundo com Chumbada (Dourada / Linguado)",
+        en: "Running Ledger Bottom Rig (Bream / Flounder)"
+      },
+      tag: {
+        pt: "Cais, Canais e Surfcasting · Isco Natural",
+        en: "Piers, Channels & Surf · Natural Bait"
+      },
+      desc: {
+        pt: "Ordem: Linha Madre (0,30–0,35 mm) → Missanga protetora → Destorcedor Triplo ou de Corrida com Chumbada (40 g a 120 g) → Destorcedor simples → Estralho fino (0,22–0,30 mm, 60 cm a 1,2 m) → Anzol (n.º 1 a 4).",
+        en: "Order: Mainline (0.30–0.35 mm) → Bead → Running Boom/Swivel with Sinker (40–120 g) → Swivel → Hooklength (0.22–0.30 mm, 60 cm–1.2 m) → Hook (size 1–4)."
+      },
+      use: {
+        pt: "Como a chumbada desliza livremente na linha madre, o peixe (como a dourada ou o sargo) consegue pegar no caranguejo, berbigão ou minhoca sem sentir o peso do chumbo, reduzindo o risco de largar o isco.",
+        en: "Because the sinker slides freely on the mainline, cautious fish like gilthead bream can pick up crab, cockle, or worm without feeling lead resistance."
+      },
+      svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="24" x2="86" y2="24"/>
+        <circle cx="62" cy="24" r="3" stroke="var(--channel)"/>
+        <line x1="62" y1="27" x2="62" y2="38"/>
+        <polygon points="56,38 68,38 65,52 59,52" fill="var(--channel)" fill-opacity="0.3"/>
+        <circle cx="89" cy="24" r="3" fill="currentColor"/>
+        <line x1="92" y1="24" x2="152" y2="24" stroke="var(--channel)"/>
+        <path d="M152 24 L164 24 C170 24, 170 33, 163 33 C159 33, 158 30, 159 28" stroke-width="2"/>
+      </svg>`
+    },
+    {
+      id: "montagem-boia",
+      name: {
+        pt: "Montagem à Bóia de Correr (Sargo / Tainha)",
+        en: "Sliding Float Rig (White Bream / Mullet)"
+      },
+      tag: {
+        pt: "Molhes e Cais Fundos · Profundidade Regulável",
+        en: "Deep Jetties & Harbors · Adjustable Depth"
+      },
+      desc: {
+        pt: "Ordem: Linha Madre → Nó de Correr (Stop Knot) + Missanga → Bóia de correr (5 g a 20 g) → Chumbadinhas calibradas (olivette ou chumbos fendidos) → Destorcedor pequeno → Estralho (0,18–0,24 mm, 50–80 cm) → Anzol (n.º 6 a 10).",
+        en: "Order: Mainline → Stopper Knot + Bead → Sliding Float (5–20 g) → Calibrated Split Shot/Olivette → Micro Swivel → Hooklength (0.18–0.24 mm, 50–80 cm) → Hook (size 6–10)."
+      },
+      use: {
+        pt: "Permite pescar a 4, 6 ou 8 metros de profundidade com uma cana normal: basta subir ou descer o nó de correr na linha. Ideal nos molhes de São Jacinto e Costa Nova para sargos junto às pedras ou tainhas à meia-água.",
+        en: "Lets you fish 4–8 meters deep with a standard rod simply by sliding the stopper knot up or down. Ideal off São Jacinto and Costa Nova jetties for bream or mullet."
+      },
+      svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="30" x2="112" y2="30"/>
+        <line x1="28" y1="25" x2="28" y2="35" stroke="var(--channel)" stroke-width="2.4"/>
+        <circle cx="34" cy="30" r="2.2" fill="var(--channel)"/>
+        <ellipse cx="62" cy="30" rx="14" ry="7" fill="var(--channel)" fill-opacity="0.25"/>
+        <circle cx="90" cy="30" r="2.5" fill="currentColor"/>
+        <circle cx="98" cy="30" r="2" fill="currentColor"/>
+        <circle cx="115" cy="30" r="2.5"/>
+        <line x1="118" y1="30" x2="156" y2="30" stroke="var(--channel)"/>
+        <path d="M156 30 L166 30 C171 30, 171 38, 165 38 C162 38, 161 35, 162 33"/>
+      </svg>`
+    },
+    {
+      id: "montagem-eging",
+      name: {
+        pt: "Montagem de Eging (Choco e Lula)",
+        en: "Eging Rig (Cuttlefish & Squid)"
+      },
+      tag: {
+        pt: "Cais do Bico, Barra e Molhes · Cefalópodes",
+        en: "Cais do Bico & Jetties · Cephalopods"
+      },
+      desc: {
+        pt: "Ordem: Multifilamento fino (0,10–0,14 mm) → Nó Uni Duplo ou FG → Estralho de Fluorocarbono (0,24–0,30 mm, ~1,2 m) → Egi Snap (alfinete largo sem destorcedor) → Palhaço / Toneira (#2.5 a #3.5).",
+        en: "Order: Thin Braid (0.10–0.14 mm) → Double Uni or FG Knot → Fluorocarbon Leader (0.24–0.30 mm, ~1.2 m) → Wide Egi Snap (no swivel) → Squid Jig (#2.5–#3.5)."
+      },
+      use: {
+        pt: "Usa-se snap direto (sem destorcedor) para não desequilibrar o ângulo de descida do palhaço. Se houver muita corrente no canal ou molhe, podes prender uma chumbada tipo pêra (10–30 g) no mesmo snap para manter a toneira perto do fundo.",
+        en: "Uses a direct Egi snap (no swivel) so the jig keeps its 45° sink angle. In strong current, clip a pear sinker (10–30 g) onto the same snap to stay near the bottom."
+      },
+      svg: `<svg viewBox="0 0 180 64" width="180" height="64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="8" y1="30" x2="54" y2="30" stroke-width="2"/>
+        <circle cx="58" cy="30" r="3" fill="var(--channel)"/>
+        <line x1="61" y1="30" x2="106" y2="30" stroke="var(--channel)" stroke-dasharray="4 2"/>
+        <path d="M106 30 L114 27 L114 33 Z" fill="currentColor"/>
+        <path d="M116 30 C130 20, 150 22, 162 30 C150 37, 130 37, 116 30 Z" fill="var(--channel)" fill-opacity="0.22"/>
+        <path d="M126 35 L131 41 L136 36 Z" fill="currentColor"/>
+        <path d="M162 30 L170 24 M162 30 L171 30 M162 30 L170 36"/>
+      </svg>`
+    }
+  ];
+}
