@@ -119,96 +119,95 @@ function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function buildEquipRefMatchers() {
+function buildEquipRefEntries(lang) {
   const entries = [];
-  if (typeof EQUIP_DATA === "undefined") return entries;
-
-  ["amostras", "nos"].forEach((subtab) => {
-    const list = EQUIP_DATA[subtab];
-    if (!Array.isArray(list)) return;
-
-    list.forEach((item) => {
-      const terms = new Set();
-
-      if (Array.isArray(item.matches)) {
-        item.matches.forEach((m) => {
-          if (m && m.trim()) terms.add(m.trim());
-        });
+  const addTerms = (subtab, item) => {
+    const rawTerms = new Set();
+    if (Array.isArray(item.matches)) {
+      item.matches.forEach((m) => m && rawTerms.add(m.trim()));
+    }
+    const nameObj = item.name || {};
+    [nameObj[lang], nameObj.pt, nameObj.en].forEach((n) => {
+      if (!n) return;
+      const clean = n.replace(/\s*\([^)]*\)/g, "").trim();
+      if (clean) rawTerms.add(clean);
+      if (subtab === "nos") {
+        const withoutPrefix = clean
+          .replace(/^Nó\s+(de\s+|do\s+|da\s+)?/i, "")
+          .replace(/\s+Knot$/i, "")
+          .trim();
+        if (withoutPrefix && withoutPrefix.length >= 4 && !/^correr$/i.test(withoutPrefix)) {
+          rawTerms.add(withoutPrefix);
+        }
       }
-
-      if (item.name && typeof item.name === "object") {
-        Object.values(item.name).forEach((n) => {
-          if (!n || typeof n !== "string") return;
-          const clean = n.trim();
-          if (clean) terms.add(clean);
-          const noParens = clean.replace(/\s*\([^)]*\)/g, "").trim();
-          if (noParens) terms.add(noParens);
-          const withoutPrefix = noParens.replace(/^(Nó|No|Knot)\s+/i, "").trim();
-          if (withoutPrefix && withoutPrefix.length >= 4) {
-            terms.add(withoutPrefix);
-          }
-        });
-      }
-
-      terms.forEach((term) => {
-        entries.push({
-          term,
-          subtab,
-          id: item.id,
-        });
-      });
     });
-  });
 
-  // Sort longest match first so "Nó Uni Duplo" matches before "Uni"
+    rawTerms.forEach((term) => {
+      if (term.length >= 3) {
+        entries.push({ subtab, id: item.id, term });
+      }
+    });
+  };
+
+  if (typeof EQUIP_DATA !== "undefined") {
+    (EQUIP_DATA.amostras || []).forEach((item) => addTerms("amostras", item));
+    (EQUIP_DATA.nos || []).forEach((item) => addTerms("nos", item));
+  }
+
   entries.sort((a, b) => b.term.length - a.term.length);
   return entries;
 }
 
-function findEquipItem(subtab, itemId) {
-  if (typeof EQUIP_DATA === "undefined" || !Array.isArray(EQUIP_DATA[subtab])) {
-    return null;
-  }
-  return EQUIP_DATA[subtab].find((entry) => entry.id === itemId) || null;
-}
-
-function formatEquipWithLinks(text, allowedSubtabs = ["amostras", "nos"]) {
-  if (!text || text === "—") return text;
-
-  const matchers = buildEquipRefMatchers().filter((m) =>
-    allowedSubtabs.includes(m.subtab),
-  );
-  if (matchers.length === 0) return text;
-
-  const termToMeta = new Map();
-  matchers.forEach((m) => {
-    const key = m.term.toLowerCase();
-    if (!termToMeta.has(key)) {
-      termToMeta.set(key, { subtab: m.subtab, id: m.id });
-    }
-  });
-
-  const alternation = Array.from(
-    new Set(matchers.map((m) => escapeRegExp(m.term))),
-  ).join("|");
-  if (!alternation) return text;
-
-  // Match whole terms outside of existing HTML tags
-  const pattern = new RegExp(
-    `(<[^>]+>)|(?<![\\p{L}\\p{N}_])(${alternation})(?![\\p{L}\\p{N}_])`,
-    "giu",
-  );
-
-  return text.replace(pattern, (full, tag, matchedTerm) => {
-    if (tag) return tag;
-    const meta = termToMeta.get(matchedTerm.toLowerCase());
-    if (!meta) return full;
-    return `<button type="button" class="amostra-ref equip-ref" data-equip-subtab="${meta.subtab}" data-equip-id="${meta.id}" data-amostra-id="${meta.id}">${matchedTerm}</button>`;
-  });
-}
-
 function formatAmostraWithLinks(text) {
-  return formatEquipWithLinks(text, ["amostras"]);
+  if (!text || text === "—") return text;
+  let result = text;
+  EQUIP_DATA.amostras.forEach((item) => {
+    const pattern = new RegExp(`\\b(${item.matches.join("|")})\\b`, "gi");
+    result = result.replace(
+      pattern,
+      `<button type="button" class="amostra-ref" data-equip-subtab="amostras" data-amostra-id="${item.id}">$1</button>`,
+    );
+  });
+  return result;
+}
+
+function formatMontagemWithLinks(text, lang) {
+  if (!text || text === "—") return text;
+  const entries = buildEquipRefEntries(lang);
+  if (!entries.length) return text;
+
+  const parts = text.split(/(<[^>]+>)/g);
+  return parts
+    .map((part) => {
+      if (part.startsWith("<")) return part;
+      let seg = part;
+      const placeholders = [];
+
+      entries.forEach(({ subtab, id, term }) => {
+        const isKnot = subtab === "nos";
+        const startsWithNo = /^n[óo]\b/i.test(term);
+        const prefixGuard =
+          isKnot && !startsWithNo
+            ? "(?<!\\b(?:b[óo]ia|chumbada|montagem|sistema|linha|anzol|fio)\\s+(?:de\\s+|do\\s+|da\\s+)?)"
+            : "";
+
+        const pattern = new RegExp(
+          `${prefixGuard}(?<![\\wÀ-ÿ])(${escapeRegExp(term)})(?![\\wÀ-ÿ])`,
+          "gi",
+        );
+
+        seg = seg.replace(pattern, (match) => {
+          const idx = placeholders.length;
+          placeholders.push(
+            `<button type="button" class="amostra-ref equip-ref" data-equip-subtab="${subtab}" data-amostra-id="${id}">${match}</button>`,
+          );
+          return `@@EQUIPREF_${idx}@@`;
+        });
+      });
+
+      return seg.replace(/@@EQUIPREF_(\d+)@@/g, (_, idx) => placeholders[Number(idx)]);
+    })
+    .join("");
 }
 
 function getOrCreateTooltip() {
@@ -231,37 +230,33 @@ function getOrCreateTooltip() {
   return tip;
 }
 
-function showAmostraTooltip(triggerEl, itemId, subtab = "amostras") {
-  let resolvedSubtab = subtab || "amostras";
-  let item = findEquipItem(resolvedSubtab, itemId);
-  if (!item) {
-    resolvedSubtab = resolvedSubtab === "amostras" ? "nos" : "amostras";
-    item = findEquipItem(resolvedSubtab, itemId);
-  }
+function showAmostraTooltip(triggerEl, amostraId, subtab = "amostras") {
+  const list =
+    (typeof EQUIP_DATA !== "undefined" && EQUIP_DATA[subtab]) ||
+    (typeof EQUIP_DATA !== "undefined" && EQUIP_DATA.amostras) ||
+    [];
+  const item = list.find((a) => a.id === amostraId);
   if (!item) return;
 
   clearTimeout(tooltipHideTimer);
   const tip = getOrCreateTooltip();
   const lang = typeof currentLang !== "undefined" ? currentLang : "pt";
-
-  const shortText =
-    (item.short && item.short[lang]) ||
-    (item.desc && item.desc[lang]) ||
-    "";
+  const summaryText =
+    (item.short && item.short[lang]) || (item.desc && item.desc[lang]) || "";
   const hintText =
-    lang === "pt"
-      ? resolvedSubtab === "nos"
+    subtab === "nos"
+      ? lang === "pt"
         ? "Clica para ver este nó →"
-        : "Clica para ver esta amostra →"
-      : resolvedSubtab === "nos"
-        ? "Click to view this knot →"
-        : "Click to view this lure →";
+        : "Click to view this knot →"
+      : lang === "pt"
+        ? "Clica para ver no guia →"
+        : "Click to view in guide →";
 
   tip.innerHTML = `
-    <div class="amostra-tooltip-svg">${item.svg || ""}</div>
+    <div class="amostra-tooltip-svg">${item.svg}</div>
     <div class="amostra-tooltip-body">
       <strong>${item.name[lang]}</strong>
-      <p>${shortText}</p>
+      <p>${summaryText}</p>
       <span class="amostra-tooltip-hint">${hintText}</span>
     </div>
   `;
@@ -494,11 +489,11 @@ function renderEquipamento() {
 
           const descHtml =
             currentEquipSubtab === "montagens"
-              ? formatEquipWithLinks(item.desc[lang], ["amostras", "nos"])
+              ? formatMontagemWithLinks(item.desc[lang], lang)
               : item.desc[lang];
           const useHtml =
             currentEquipSubtab === "montagens"
-              ? formatEquipWithLinks(item.use[lang], ["amostras", "nos"])
+              ? formatMontagemWithLinks(item.use[lang], lang)
               : item.use[lang];
 
           return `
@@ -578,7 +573,7 @@ function renderEquipamento() {
   if (resetEmptyBtn) resetEmptyBtn.addEventListener("click", resetKnotsFn);
 }
 
-function jumpToEquipItem(subtab, itemId) {
+function jumpToAmostra(amostraId, targetSubtab = "amostras") {
   hideAmostraTooltip(0);
 
   if (typeof skipNextScrollToTop !== "undefined") {
@@ -590,35 +585,29 @@ function jumpToEquipItem(subtab, itemId) {
     equipTab.click();
   }
 
-  let targetSubtab = subtab || "amostras";
-  if (!findEquipItem(targetSubtab, itemId)) {
-    const altSubtab = targetSubtab === "amostras" ? "nos" : "amostras";
-    if (findEquipItem(altSubtab, itemId)) {
-      targetSubtab = altSubtab;
-    }
-  }
+  currentEquipSubtab = targetSubtab;
+  sessionStorage.setItem("almanac-equip-subtab", currentEquipSubtab);
 
-  // If jumping to a knot that is currently hidden by knot filters, clear filters so the card is visible
   if (targetSubtab === "nos") {
-    const targetItem = findEquipItem("nos", itemId);
-    if (targetItem) {
-      const catHidden =
+    const knotItem = (EQUIP_DATA.nos || []).find((n) => n.id === amostraId);
+    if (knotItem) {
+      if (
         currentKnotCategory !== "todos" &&
-        targetItem.category !== currentKnotCategory;
-      const diffHidden =
-        currentKnotDifficulty !== "todos" &&
-        targetItem.difficulty !== currentKnotDifficulty;
-      if (catHidden || diffHidden) {
+        knotItem.category !== currentKnotCategory
+      ) {
         currentKnotCategory = "todos";
-        currentKnotDifficulty = "todos";
         sessionStorage.setItem("almanac-knot-cat", "todos");
+      }
+      if (
+        currentKnotDifficulty !== "todos" &&
+        knotItem.difficulty !== currentKnotDifficulty
+      ) {
+        currentKnotDifficulty = "todos";
         sessionStorage.setItem("almanac-knot-diff", "todos");
       }
     }
   }
 
-  currentEquipSubtab = targetSubtab;
-  sessionStorage.setItem("almanac-equip-subtab", currentEquipSubtab);
   renderEquipamento();
 
   if (typeof syncStickyHeights === "function") {
@@ -630,7 +619,7 @@ function jumpToEquipItem(subtab, itemId) {
       if (typeof syncStickyHeights === "function") {
         syncStickyHeights();
       }
-      const card = document.getElementById(`equip-${itemId}`);
+      const card = document.getElementById(`equip-${amostraId}`);
       if (!card) return;
       card.scrollIntoView({ behavior: "smooth", block: "start" });
       card.classList.remove("destaque");
@@ -641,16 +630,14 @@ function jumpToEquipItem(subtab, itemId) {
   });
 }
 
-function jumpToAmostra(amostraId) {
-  jumpToEquipItem("amostras", amostraId);
-}
-
 document.addEventListener("mouseover", (e) => {
   const btn = e.target.closest(".amostra-ref");
   if (btn) {
-    const itemId = btn.dataset.equipId || btn.dataset.amostraId;
-    const subtab = btn.dataset.equipSubtab || "amostras";
-    showAmostraTooltip(btn, itemId, subtab);
+    showAmostraTooltip(
+      btn,
+      btn.dataset.amostraId,
+      btn.dataset.equipSubtab || "amostras",
+    );
   }
 });
 
@@ -664,9 +651,11 @@ document.addEventListener("mouseout", (e) => {
 document.addEventListener("focusin", (e) => {
   const btn = e.target.closest(".amostra-ref");
   if (btn) {
-    const itemId = btn.dataset.equipId || btn.dataset.amostraId;
-    const subtab = btn.dataset.equipSubtab || "amostras";
-    showAmostraTooltip(btn, itemId, subtab);
+    showAmostraTooltip(
+      btn,
+      btn.dataset.amostraId,
+      btn.dataset.equipSubtab || "amostras",
+    );
   }
 });
 
@@ -681,8 +670,9 @@ document.addEventListener("click", (e) => {
   const btn = e.target.closest(".amostra-ref");
   if (btn) {
     e.preventDefault();
-    const itemId = btn.dataset.equipId || btn.dataset.amostraId;
-    const subtab = btn.dataset.equipSubtab || "amostras";
-    jumpToEquipItem(subtab, itemId);
+    jumpToAmostra(
+      btn.dataset.amostraId,
+      btn.dataset.equipSubtab || "amostras",
+    );
   }
 });
