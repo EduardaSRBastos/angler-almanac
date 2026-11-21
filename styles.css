@@ -25,6 +25,18 @@
   --sticky-tabs-h: 2.5rem;
   --sticky-subtabs-h: 2.85rem;
   --sticky-filters-h: 4.5rem;
+
+  --diff-facil-bg: rgba(34, 197, 94, 0.16);
+  --diff-facil-ink: #15803d;
+  --diff-facil-border: rgba(34, 197, 94, 0.35);
+
+  --diff-medio-bg: rgba(234, 179, 8, 0.16);
+  --diff-medio-ink: #a16207;
+  --diff-medio-border: rgba(234, 179, 8, 0.35);
+
+  --diff-avancado-bg: rgba(239, 68, 68, 0.16);
+  --diff-avancado-ink: #b91c1c;
+  --diff-avancado-border: rgba(239, 68, 68, 0.35);
 }
 
 [data-theme="dark"] {
@@ -48,6 +60,36 @@
   --chip4-ink: #0a1f26;
   --chip5: #a5dcf0;
   --chip5-ink: #0a1f26;
+
+  --diff-facil-bg: rgba(74, 222, 128, 0.18);
+  --diff-facil-ink: #86efac;
+  --diff-facil-border: rgba(74, 222, 128, 0.4);
+
+  --diff-medio-bg: rgba(250, 204, 21, 0.18);
+  --diff-medio-ink: #fde047;
+  --diff-medio-border: rgba(250, 204, 21, 0.4);
+
+  --diff-avancado-bg: rgba(248, 113, 113, 0.18);
+  --diff-avancado-ink: #fca5a5;
+  --diff-avancado-border: rgba(248, 113, 113, 0.4);
+}
+
+.equip-tag.diff-facil {
+  background: var(--diff-facil-bg);
+  color: var(--diff-facil-ink);
+  border: 1px solid var(--diff-facil-border);
+}
+
+.equip-tag.diff-medio {
+  background: var(--diff-medio-bg);
+  color: var(--diff-medio-ink);
+  border: 1px solid var(--diff-medio-border);
+}
+
+.equip-tag.diff-avancado {
+  background: var(--diff-avancado-bg);
+  color: var(--diff-avancado-ink);
+  border: 1px solid var(--diff-avancado-border);
 }
 
 * {
@@ -607,7 +649,7 @@ footer {
   color: var(--muted);
 }
 
-footer a{
+footer a {
   color: var(--channel);
   cursor: pointer;
 }

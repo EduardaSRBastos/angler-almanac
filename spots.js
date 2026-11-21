@@ -11,7 +11,35 @@ const els = {
   contagem: $("contagem"),
 };
 
+function setTextIfExists(id, text) {
+  const el = $(id);
+  if (el) el.textContent = text;
+}
+
+function saveSpotsFilters() {
+  sessionStorage.setItem(
+    "almanac-spots-filters",
+    JSON.stringify({
+      busca: els.busca ? els.busca.value : "",
+      mes: els.mes ? els.mes.value : "",
+      tipo: els.tipo ? els.tipo.value : "",
+      peixe: els.peixe ? els.peixe.value : "",
+      hip: els.hip ? els.hip.value : "",
+    }),
+  );
+}
+
+function loadSpotsFilters() {
+  try {
+    const raw = sessionStorage.getItem("almanac-spots-filters");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 function fill(select, values, first, keepValue) {
+  if (!select) return;
   select.innerHTML =
     `<option value="">${first}</option>` +
     values.map((v) => `<option value="${v}">${v}</option>`).join("");
@@ -25,23 +53,37 @@ const unique = (list, key) =>
 
 function populateFilters(initial = false) {
   const t = I18N[currentLang];
-  const prevMes = initial ? String(new Date().getMonth()) : els.mes.value;
-  const prevTipo = els.tipo.value;
-  const prevPeixe = els.peixe.value;
-  const prevHip = els.hip.value;
+  const saved = initial ? loadSpotsFilters() : null;
+
+  const prevMes = saved
+    ? saved.mes
+    : initial
+      ? String(new Date().getMonth())
+      : els.mes.value;
+  const prevTipo = saved ? saved.tipo : els.tipo.value;
+  const prevPeixe = saved ? saved.peixe : els.peixe.value;
+  const prevHip = saved ? saved.hip : els.hip.value;
+
+  if (saved && typeof saved.busca === "string" && els.busca) {
+    els.busca.value = saved.busca;
+  }
 
   const districtRows = rows.filter((r) => r.distrito === currentDistrito);
 
-  els.mes.innerHTML =
-    `<option value="">${t.allMonths}</option>` +
-    t.months.map((m, i) => `<option value="${i}">${m}</option>`).join("");
-  els.mes.value = prevMes;
+  if (els.mes) {
+    els.mes.innerHTML =
+      `<option value="">${t.allMonths}</option>` +
+      t.months.map((m, i) => `<option value="${i}">${m}</option>`).join("");
+    els.mes.value = prevMes;
+  }
 
   fill(els.tipo, unique(districtRows, "tipo"), t.allTypes, prevTipo);
   fill(els.peixe, unique(districtRows, "peixe"), t.allSpecies, prevPeixe);
 
-  els.hip.innerHTML = `<option value="">${t.hipAny}</option><option value="3">${t.hipMed}</option><option value="5">${t.hipGood}</option>`;
-  els.hip.value = prevHip;
+  if (els.hip) {
+    els.hip.innerHTML = `<option value="">${t.hipAny}</option><option value="3">${t.hipMed}</option><option value="5">${t.hipGood}</option>`;
+    els.hip.value = prevHip;
+  }
 }
 
 function applyLanguage() {
@@ -51,27 +93,28 @@ function applyLanguage() {
   const metaDescEl = document.querySelector('meta[name="description"]');
   if (metaDescEl) metaDescEl.setAttribute("content", t.metaDesc);
 
-  $("site-title").textContent = t.title;
-  $("site-sub").textContent = t.sub;
-  $("lang-toggle").textContent = t.toggleBtn;
-  $("tab-pesqueiros").textContent = t.tabPesqueiros;
-  $("tab-equipamento").textContent = t.tabEquipamento;
-  $("lbl-busca").textContent = t.lblBusca;
-  $("busca").placeholder = t.buscaPlaceholder;
-  $("lbl-mes").textContent = t.lblMes;
-  $("lbl-tipo").textContent = t.lblTipo;
-  $("lbl-peixe").textContent = t.lblPeixe;
-  $("lbl-hip").textContent = t.lblHip;
-  $("regras-titulo").textContent = t.regrasTitulo;
-  const equipPlaceholder = $("equipamento-placeholder");
-  if (equipPlaceholder) equipPlaceholder.textContent = t.equipPlaceholder;
+  setTextIfExists("site-title", t.title);
+  setTextIfExists("site-sub", t.sub);
+  setTextIfExists("lang-toggle", t.toggleBtn);
+  setTextIfExists("tab-pesqueiros", t.tabPesqueiros);
+  setTextIfExists("tab-equipamento", t.tabEquipamento);
+  setTextIfExists("lbl-busca", t.lblBusca);
+  if (els.busca) els.busca.placeholder = t.buscaPlaceholder;
+  setTextIfExists("lbl-mes", t.lblMes);
+  setTextIfExists("lbl-tipo", t.lblTipo);
+  setTextIfExists("lbl-peixe", t.lblPeixe);
+  setTextIfExists("lbl-hip", t.lblHip);
+  setTextIfExists("regras-titulo", t.regrasTitulo);
+  setTextIfExists("equipamento-placeholder", t.equipPlaceholder);
 
   populateFilters(false);
   render();
   if (typeof renderEquipamento === "function") {
     renderEquipamento();
   }
-  syncStickyHeights();
+  if (typeof syncStickyHeights === "function") {
+    syncStickyHeights();
+  }
 }
 
 function field(label, value) {
@@ -85,21 +128,22 @@ function slugify(text) {
 }
 
 function resetAllFilters() {
-  els.busca.value = "";
-  els.mes.value = "";
-  els.tipo.value = "";
-  els.peixe.value = "";
-  els.hip.value = "";
+  if (els.busca) els.busca.value = "";
+  if (els.mes) els.mes.value = "";
+  if (els.tipo) els.tipo.value = "";
+  if (els.peixe) els.peixe.value = "";
+  if (els.hip) els.hip.value = "";
   selectedLocal = null;
+  saveSpotsFilters();
   render();
 }
 
 function render() {
   const t = I18N[currentLang];
   const districtRows = rows.filter((r) => r.distrito === currentDistrito);
-  const query = els.busca.value.trim().toLowerCase();
-  const mes = els.mes.value;
-  const minRank = Number(els.hip.value) || 0;
+  const query = els.busca ? els.busca.value.trim().toLowerCase() : "";
+  const mes = els.mes ? els.mes.value : "";
+  const minRank = els.hip ? Number(els.hip.value) || 0 : 0;
 
   const hits = districtRows.filter(
     (r) =>
@@ -118,14 +162,19 @@ function render() {
     updateMapMarkers(groups);
   }
 
-  els.contagem.textContent = t.count(hits.length, districtRows.length);
+  if (els.contagem) {
+    els.contagem.textContent = t.count(hits.length, districtRows.length);
+  }
+  if (!els.lista) return;
+
   if (!hits.length) {
     els.lista.innerHTML = `
       <div class="vazio">
         <p style="margin:0">${t.empty}</p>
         <button type="button" id="btn-reset-filters" class="btn-limpar">${t.clearFilters}</button>
       </div>`;
-    $("btn-reset-filters").addEventListener("click", resetAllFilters);
+    const resetBtn = $("btn-reset-filters");
+    if (resetBtn) resetBtn.addEventListener("click", resetAllFilters);
     return;
   }
 
@@ -175,30 +224,36 @@ function render() {
 }
 
 // --- Eventos de Filtros e Idioma ---
-["mes", "tipo", "peixe", "hip"].forEach((id) =>
-  els[id].addEventListener("change", () => {
+["mes", "tipo", "peixe", "hip"].forEach((id) => {
+  if (els[id]) {
+    els[id].addEventListener("change", () => {
+      saveSpotsFilters();
+      render();
+      if (typeof scrollPageToTop === "function") scrollPageToTop();
+    });
+  }
+});
+
+if (els.busca) {
+  els.busca.addEventListener("input", () => {
+    saveSpotsFilters();
     render();
-    scrollPageToTop();
-  }),
-);
+    if (typeof scrollPageToTop === "function") scrollPageToTop();
+  });
+}
 
-els.busca.addEventListener("input", () => {
-  render();
-  scrollPageToTop();
-});
-
-$("lang-toggle").addEventListener("click", () => {
-  currentLang = currentLang === "pt" ? "en" : "pt";
-  applyLanguage();
-});
+const langToggleBtn = $("lang-toggle");
+if (langToggleBtn) {
+  langToggleBtn.addEventListener("click", () => {
+    currentLang = currentLang === "pt" ? "en" : "pt";
+    sessionStorage.setItem("almanac-lang", currentLang);
+    applyLanguage();
+  });
+}
 
 // --- Inicialização da Aplicação ---
 if (typeof initMap === "function") {
   initMap();
 }
 populateFilters(true);
-render();
-if (typeof renderEquipamento === "function") {
-  renderEquipamento();
-}
-syncStickyHeights();
+applyLanguage();

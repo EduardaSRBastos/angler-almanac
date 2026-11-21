@@ -3,8 +3,8 @@
 // =========================================================
 const $ = (id) => document.getElementById(id);
 
-let currentLang = "pt";
-let currentDistrito = "aveiro";
+let currentLang = sessionStorage.getItem("almanac-lang") || "pt";
+let currentDistrito = sessionStorage.getItem("almanac-distrito") || "aveiro";
 let selectedLocal = null;
 let currentGroups = new Map();
 let skipNextScrollToTop = false;
@@ -112,21 +112,25 @@ if (equipPanel && typeof MutationObserver !== "undefined") {
 window.addEventListener("load", syncStickyHeights);
 window.addEventListener("resize", syncStickyHeights);
 
-// --- Eventos de Navegação (Tabs, Distritos e Scroll Automático) ---
+// --- Ativação e Persistência de Tab e Distrito ---
+function activateMainTab(target) {
+  document.querySelectorAll(".tab").forEach((b) => {
+    const isMatch = b.dataset.tab === target;
+    b.classList.toggle("active", isMatch);
+    b.setAttribute("aria-selected", isMatch ? "true" : "false");
+  });
+
+  document.querySelectorAll(".tab-panel").forEach((panel) => {
+    panel.hidden = panel.id !== `panel-${target}`;
+  });
+
+  sessionStorage.setItem("almanac-active-tab", target);
+  syncStickyHeights();
+}
+
 document.querySelectorAll(".tab").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((b) => {
-      b.classList.remove("active");
-      b.setAttribute("aria-selected", "false");
-    });
-    btn.classList.add("active");
-    btn.setAttribute("aria-selected", "true");
-
-    const target = btn.dataset.tab;
-    document.querySelectorAll(".tab-panel").forEach((panel) => {
-      panel.hidden = panel.id !== `panel-${target}`;
-    });
-    syncStickyHeights();
+    activateMainTab(btn.dataset.tab);
   });
 });
 
@@ -139,11 +143,29 @@ document
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       currentDistrito = btn.dataset.distrito;
+      sessionStorage.setItem("almanac-distrito", currentDistrito);
       selectedLocal = null;
+      if (typeof saveSpotsFilters === "function") saveSpotsFilters();
       if (typeof populateFilters === "function") populateFilters(false);
       if (typeof render === "function") render();
     });
   });
+
+// Restaura tab e distrito guardados na sessão ao carregar a página
+const savedTab = sessionStorage.getItem("almanac-active-tab");
+if (savedTab && document.querySelector(`.tab[data-tab="${savedTab}"]`)) {
+  activateMainTab(savedTab);
+}
+
+const savedDistritoBtn = document.querySelector(
+  `.distrito-btn:not(.equip-subtab-btn)[data-distrito="${currentDistrito}"]`,
+);
+if (savedDistritoBtn) {
+  document
+    .querySelectorAll(".distrito-btn:not(.equip-subtab-btn)")
+    .forEach((b) => b.classList.remove("active"));
+  savedDistritoBtn.classList.add("active");
+}
 
 document.addEventListener("click", (e) => {
   const clickedNav = e.target.closest(

@@ -1,6 +1,6 @@
-let currentEquipSubtab = "amostras";
-let currentKnotCategory = "todos";
-let currentKnotDifficulty = "todos";
+let currentEquipSubtab = sessionStorage.getItem("almanac-equip-subtab") || "amostras";
+let currentKnotCategory = sessionStorage.getItem("almanac-knot-cat") || "todos";
+let currentKnotDifficulty = sessionStorage.getItem("almanac-knot-diff") || "todos";
 let tooltipHideTimer = null;
 
 function formatAmostraWithLinks(text) {
@@ -172,13 +172,10 @@ function renderEquipamento() {
     </div>`
       : "";
 
-  const diffColors = {
-    facil:
-      "background:rgba(34,197,94,0.16);color:#15803d;border:1px solid rgba(34,197,94,0.35);",
-    medio:
-      "background:rgba(234,179,8,0.16);color:#a16207;border:1px solid rgba(234,179,8,0.35);",
-    avancado:
-      "background:rgba(239,68,68,0.16);color:#b91c1c;border:1px solid rgba(239,68,68,0.35);",
+  const diffClasses = {
+    facil: "diff-facil",
+    medio: "diff-medio",
+    avancado: "diff-avancado",
   };
 
   const usoLabel = currentEquipSubtab === "nos" ? labels.usoNo : labels.uso;
@@ -201,7 +198,7 @@ function renderEquipamento() {
                   ${item.category ? `<span class="equip-tag">${labels.cats[item.category] || item.category}</span>` : ""}
                   ${
                     item.difficulty
-                      ? `<span class="equip-tag" style="${diffColors[item.difficulty] || ""}">${labels.diffs[item.difficulty] || item.difficulty}</span>`
+                      ? `<span class="equip-tag ${diffClasses[item.difficulty] || ""}">${labels.diffs[item.difficulty] || item.difficulty}</span>`
                       : ""
                   }
                 </div>`
@@ -250,6 +247,7 @@ function renderEquipamento() {
   panel.querySelectorAll(".equip-subtab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       currentEquipSubtab = btn.dataset.subtab;
+      sessionStorage.setItem("almanac-equip-subtab", currentEquipSubtab);
       renderEquipamento();
     });
   });
@@ -257,6 +255,7 @@ function renderEquipamento() {
   panel.querySelectorAll(".equip-cat-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       currentKnotCategory = btn.dataset.cat;
+      sessionStorage.setItem("almanac-knot-cat", currentKnotCategory);
       renderEquipamento();
     });
   });
@@ -264,6 +263,7 @@ function renderEquipamento() {
   panel.querySelectorAll(".equip-diff-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       currentKnotDifficulty = btn.dataset.diff;
+      sessionStorage.setItem("almanac-knot-diff", currentKnotDifficulty);
       renderEquipamento();
     });
   });
@@ -282,6 +282,7 @@ function jumpToAmostra(amostraId) {
   }
 
   currentEquipSubtab = "amostras";
+  sessionStorage.setItem("almanac-equip-subtab", currentEquipSubtab);
   renderEquipamento();
 
   if (typeof syncStickyHeights === "function") {
