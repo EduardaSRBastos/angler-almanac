@@ -486,7 +486,7 @@ function getMoonAndTideInfo(lang = "pt") {
     tideTip: lang === "pt" ? tideTipPt : tideTipEn,
     scheduleText:
       scheduleParts.length > 0
-        ? (lang === "pt" ? "Extremos hoje: " : "Today's extremes: ") +
+        ? (lang === "pt" ? "Marés hoje: " : "Today's tides: ") +
           scheduleParts.join(" · ")
         : "",
     note:

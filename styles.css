@@ -837,6 +837,59 @@ footer a {
   border-color: var(--channel);
 }
 
+.checklist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.checklist-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.checklist-counter {
+  font-weight: 700;
+  color: var(--accent, #0ea5e9);
+}
+.checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+.checklist-card {
+  background: var(--card-bg, #1e293b);
+  padding: 1rem;
+  border-radius: 10px;
+}
+.checklist-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  line-height: 1.35;
+}
+.checklist-item input[type="checkbox"] {
+  margin-top: 0.2rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent, #0ea5e9);
+}
+.checklist-item.checked span {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
 @media (max-width: 36rem) {
   .equip-card {
     grid-template-columns: 1fr;
