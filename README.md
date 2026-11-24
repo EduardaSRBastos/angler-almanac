@@ -7,7 +7,7 @@
 
 <p><i>Angler's Almanac: practical fishing guide with top spots, tides, seasons, rigs, knots, checklist, and recreational fishing rules in Portugal.</i></p>
 
-<kbd> !(assets/images/preview.png) </kbd>
+<kbd> ![image](assets/images/preview.png) </kbd>
 
 </div>
 
