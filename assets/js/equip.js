@@ -101,6 +101,7 @@ function renderEquipamento() {
       filterToggle: "Filtrar nós",
       allKnots: "Todos os nós",
       emptyNos: "Nenhum nó encontrado com esta combinação de filtros.",
+      recursos: "Links Úteis",
       cats: {
         todos: "Todos",
         anzol: "Anzol / Snap",
@@ -134,6 +135,7 @@ function renderEquipamento() {
       filterToggle: "Filter knots",
       allKnots: "All knots",
       emptyNos: "No knots match the selected filters.",
+      recursos: "Useful Links",
       cats: {
         todos: "All",
         anzol: "Hook / Snap",
@@ -168,23 +170,43 @@ function renderEquipamento() {
   const checklistTabLabel =
     total > 0 ? `${labels.checklist} (${marcados}/${total})` : labels.checklist;
 
+  const hasRecursos =
+    Array.isArray(EQUIP_DATA.recursos) && EQUIP_DATA.recursos.length > 0;
+
+  if (currentEquipSubtab === "recursos" && !hasRecursos) {
+    currentEquipSubtab = "amostras";
+  }
+
+  const subtabsHtml = `
+    <div class="distritos equip-subtabs" role="tablist">
+      <button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "amostras" ? "active" : ""}" data-subtab="amostras">${labels.amostras}</button>
+      <button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "nos" ? "active" : ""}" data-subtab="nos">${labels.nos}</button>
+      ${
+        hasMontagens
+          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "montagens" ? "active" : ""}" data-subtab="montagens">${labels.montagens}</button>`
+          : ""
+      }
+      ${
+        hasCanas
+          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "canas" ? "active" : ""}" data-subtab="canas">${labels.canas}</button>`
+          : ""
+      }
+      ${
+        hasChecklist
+          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "checklist" ? "active" : ""}" data-subtab="checklist">${checklistTabLabel}</button>`
+          : ""
+      }
+      ${
+        hasRecursos
+          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "recursos" ? "active" : ""}" data-subtab="recursos">${labels.recursos}</button>`
+          : ""
+      }
+    </div>
+  `;
+
   if (currentEquipSubtab === "checklist" && hasChecklist) {
     panel.innerHTML = `
-      <div class="distritos equip-subtabs" role="tablist">
-        <button type="button" class="distrito-btn equip-subtab-btn" data-subtab="amostras">${labels.amostras}</button>
-        <button type="button" class="distrito-btn equip-subtab-btn" data-subtab="nos">${labels.nos}</button>
-        ${
-          hasMontagens
-            ? `<button type="button" class="distrito-btn equip-subtab-btn" data-subtab="montagens">${labels.montagens}</button>`
-            : ""
-        }
-        ${
-          hasCanas
-            ? `<button type="button" class="distrito-btn equip-subtab-btn" data-subtab="canas">${labels.canas}</button>`
-            : ""
-        }
-        <button type="button" class="distrito-btn equip-subtab-btn active" data-subtab="checklist">${checklistTabLabel}</button>
-      </div>
+      ${subtabsHtml}
       <div id="equip-checklist"></div>
     `;
 
@@ -197,6 +219,49 @@ function renderEquipamento() {
     });
 
     renderChecklist(lang);
+    return;
+  }
+
+  if (currentEquipSubtab === "recursos" && hasRecursos) {
+    const grupos = EQUIP_DATA.recursos || [];
+    panel.innerHTML = `
+      ${subtabsHtml}
+      <div class="checklist-grid">
+        ${grupos
+          .map(
+            (g) => `
+          <div class="checklist-card">
+            <h4>${g.categoria[lang] || g.categoria.pt}</h4>
+            <ul class="cana-use-list" style="margin-left: 14px;">
+              ${g.links
+                .map(
+                  (item) => `
+                <li>
+                  <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="cana-inline-link">
+                    ${item.nome[lang] || item.nome.pt} ↗
+                  </a>
+                  <br>
+                  <span style="font-size: 0.85rem; color: var(--muted);">${item.desc[lang] || item.desc.pt}</span>
+                </li>
+              `,
+                )
+                .join("")}
+            </ul>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    `;
+
+    panel.querySelectorAll(".equip-subtab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentEquipSubtab = btn.dataset.subtab;
+        sessionStorage.setItem("almanac-equip-subtab", currentEquipSubtab);
+        renderEquipamento();
+      });
+    });
+
     return;
   }
 
@@ -284,26 +349,8 @@ function renderEquipamento() {
           ? labels.usoCana
           : labels.uso;
 
-  panel.innerHTML = `
-    <div class="distritos equip-subtabs" role="tablist">
-      <button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "amostras" ? "active" : ""}" data-subtab="amostras">${labels.amostras}</button>
-      <button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "nos" ? "active" : ""}" data-subtab="nos">${labels.nos}</button>
-      ${
-        hasMontagens
-          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "montagens" ? "active" : ""}" data-subtab="montagens">${labels.montagens}</button>`
-          : ""
-      }
-      ${
-        hasCanas
-          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "canas" ? "active" : ""}" data-subtab="canas">${labels.canas}</button>`
-          : ""
-      }
-      ${
-        hasChecklist
-          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "checklist" ? "active" : ""}" data-subtab="checklist">${checklistTabLabel}</button>`
-          : ""
-      }
-    </div>
+  panel.innerHTML = `   
+    ${subtabsHtml}
     ${knotsFiltersHtml}
     ${
       items.length === 0
