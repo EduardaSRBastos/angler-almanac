@@ -73,7 +73,9 @@ function syncStickyHeights() {
     ? activePanel.querySelector(".distritos, .equip-subtabs")
     : null;
   const activeFilters = activePanel
-    ? activePanel.querySelector(".filtros, .equip-filters-box")
+    ? activePanel.querySelector(
+        ".mobile-filtros-bar, .filtros, .equip-filters-box",
+      )
     : null;
 
   if (header && header.offsetHeight > 0) {
@@ -145,7 +147,7 @@ document
       currentDistrito = btn.dataset.distrito;
       sessionStorage.setItem("almanac-distrito", currentDistrito);
       selectedLocal = null;
-      if (typeof saveSpotsFilters === "function") saveSpotsFilters();
+      if (typeof saveSpotsState === "function") saveSpotsState();
       if (typeof populateFilters === "function") populateFilters(false);
       if (typeof render === "function") render();
     });

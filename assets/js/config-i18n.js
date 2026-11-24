@@ -24,9 +24,9 @@ const RANK = {
 const I18N = {
   pt: {
     title: "Almanaque do Pescador",
-    sub: "Guia prático de pesqueiros, épocas, iscos e regras.",
+    sub: "Guia prático de pesqueiros, marés, épocas, iscos, montagens e regras.",
     metaDesc:
-      "Almanaque do Pescador: guia prático de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais.",
+      "Almanaque do Pescador: guia prático de pesca com os melhores pesqueiros, marés, épocas, montagens, nós, checklist e regras de pesca lúdica em Portugal.",
     toggleBtn: "EN",
     tabPesqueiros: "Pesqueiros",
     tabEquipamento: "Equipamento",
@@ -71,13 +71,12 @@ const I18N = {
     fTecnica: "Técnica",
     fMovimento: "Movimento",
     regrasTitulo: "Regras a confirmar antes de ires",
-    equipPlaceholder: "Em breve: guia de tipos de canas, montagens e carretos.",
   },
   en: {
     title: "Angler's Almanac",
-    sub: "Practical guide to fishing spots, seasons, baits, and regulations.",
+    sub: "Practical guide to fishing spots, tides, seasons, baits, rigs, and regulations.",
     metaDesc:
-      "Angler's Almanac: practical fishing guide with top spots, what to catch and when, gear tips, rules, and much more.",
+      "Angler's Almanac: practical fishing guide with top spots, tides, seasons, rigs, knots, checklist, and recreational fishing rules in Portugal.",
     toggleBtn: "PT",
     tabPesqueiros: "Spots",
     tabEquipamento: "Gear & Rods",
@@ -122,7 +121,6 @@ const I18N = {
     fTecnica: "Technique",
     fMovimento: "Retrieve / action",
     regrasTitulo: "Rules to check before heading out",
-    equipPlaceholder: "Coming soon: guide to rod types, rigs, and reels.",
   },
 };
 
@@ -140,7 +138,6 @@ function seasonMonths(text) {
   return set;
 }
 
-// Parse do objeto RAW definido em data.js
 const rows = [];
 Object.entries(PLACES_DATA).forEach(([distrito, rawText]) => {
   let tipo = "",
