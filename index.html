@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Almanaque do Pescador</title>
+  <meta name="description"
+    content="Almanaque do Pescador: guia prático de pesca com os melhores pesqueiros, marés, épocas, montagens, nós, checklist e regras de pesca lúdica em Portugal." />
+  <meta name="keywords"
+    content="Almanaque do Pescador, Angler's Almanac, guia de pesca, pesqueiros, épocas de pesca, Ria de Aveiro, fishing guide, fishing spots, fishing seasons, fishing gear, fishing rods" />
+
+  <meta name="author" content="Eduarda Bastos" />
+  <meta name="theme-color" content="#1f6584" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+  <!-- Open Graph (WhatsApp, Facebook, LinkedIn, Discord) -->
+  <meta property="og:locale" content="pt_PT" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:title" content="Almanaque do Pescador · Angler's Almanac" />
+  <meta property="og:description"
+    content="Guia prático de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento, regras e muito mais. / A fishing guide with top spots, what to catch and when, gear tips, and rules." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://eduardasrbastos.github.io/angler-almanac" />
+  <meta property="og:image" content="https://eduardasrbastos.github.io/angler-almanac/assets/images/preview.png" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Almanaque do Pescador · Angler's Almanac" />
+  <meta name="twitter:description"
+    content="Guia prático de pesca com os melhores locais, o que apanhar e quando, dicas de equipamento e regras. / A fishing guide with top spots, seasons, and gear tips." />
+  <meta name="twitter:image" content="https://eduardasrbastos.github.io/angler-almanac/assets/images/preview.png" />
+
+  <link rel="canonical" href="https://eduardasrbastos.github.io/angler-almanac" />
+  <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="topo">
+      <div>
+        <h1 id="site-title">Almanaque do Pescador</h1>
+        <p id="site-sub" class="sub">
+          Guia prático de pesqueiros, marés, épocas, iscos, montagens e regras.
+        </p>
+      </div>
+      <div class="topo-acoes">
+        <button type="button" id="theme-toggle" class="icon-btn" aria-label="Alternar tema">
+          🌙
+        </button>
+        <button type="button" id="lang-toggle" class="lang-btn">EN</button>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button type="button" id="tab-pesqueiros" class="tab active" role="tab" aria-selected="true"
+        data-tab="pesqueiros">
+        Pesqueiros
+      </button>
+      <button type="button" id="tab-equipamento" class="tab" role="tab" aria-selected="false" data-tab="equipamento">
+        Equipamento
+      </button>
+    </nav>
+
+    <!-- PAINEL PESQUEIROS -->
+    <main id="panel-pesqueiros" class="tab-panel">
+      <div class="distritos">
+        <button type="button" class="distrito-btn active" data-distrito="aveiro">
+          Aveiro
+        </button>
+      </div>
+
+      <div id="mapa-pesqueiros" class="mapa-box"></div>
+
+      <form class="filtros" onsubmit="return false">
+        <label>
+          <span id="lbl-busca">Local</span>
+          <input type="search" id="busca" placeholder="Pesquisar local..." />
+        </label>
+        <label>
+          <span id="lbl-mes">Mês</span>
+          <select id="mes"></select>
+        </label>
+        <label>
+          <span id="lbl-tipo">Tipo de água</span>
+          <select id="tipo"></select>
+        </label>
+        <label>
+          <span id="lbl-peixe">Espécie</span>
+          <select id="peixe"></select>
+        </label>
+        <label>
+          <span id="lbl-hip">Hipóteses de captura</span>
+          <select id="hip"></select>
+        </label>
+      </form>
+
+      <p id="contagem" aria-live="polite"></p>
+      <div id="lista"></div>
+    </main>
+
+    <!-- PAINEL EQUIPAMENTO -->
+    <section id="panel-equipamento" class="tab-panel" hidden>
+      <div class="sub-tabs" role="tablist">
+        <button type="button" id="subtab-amostras" class="subtab-btn active" data-subtab="amostras">
+          Amostras
+        </button>
+        <button type="button" id="subtab-nos" class="subtab-btn" data-subtab="nos">
+          Nós de Pesca
+        </button>
+      </div>
+
+      <div id="subpanel-amostras" class="subpanel"></div>
+      <div id="subpanel-nos" class="subpanel" hidden></div>
+    </section>
+
+    <footer>
+      © <span id="year"></span> <a href="https://github.com/EduardaSRBastos" target="_blank"
+        rel="noopener noreferrer">Eduarda Bastos</a>. Licensed under the MIT License.
+    </footer>
+  </div>
+
+  <!-- Tooltip flutuante para amostras -->
+  <div id="lure-tooltip" class="lure-tooltip" role="tooltip" hidden></div>
+
+  <button type="button" id="go-top" class="go-top-btn" aria-label="Voltar ao topo" hidden>
+    ↑
+  </button>
+
+
+  <script src="assets/data/placesData.js"></script>
+  <script src="assets/data/equipLinks.js"></script>
+  <script src="assets/data/luresData.js"></script>
+  <script src="assets/data/knotsData.js"></script>
+  <script src="assets/data/rodsRigsData.js"></script>
+  <script src="assets/data/checklistData.js"></script>
+
+  <script src="assets/js/config-i18n.js"></script>
+  <script src="assets/js/tides.js"></script>
+  <script src="assets/js/map.js"></script>
+  <script src="assets/js/equipRefs.js"></script>
+  <script src="assets/js/equipChecklist.js"></script>
+  <script src="assets/js/equip.js"></script>
+  <script src="assets/js/ui-layout.js"></script>
+  <script src="assets/js/spots.js"></script>
+</body>
+
+</html>

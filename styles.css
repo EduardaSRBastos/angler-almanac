@@ -1,0 +1,1275 @@
+:root {
+  color-scheme: light;
+  --paper: #f0f7f7;
+  --panel: #f5fcff;
+  --panel-alt: #e8f5fa;
+  --ink: #16282d;
+  --muted: #566b70;
+  --line: #cbd7d8;
+  --channel: #1f6584;
+  --pin: #3d86a5;
+  --pin-active: #c3e1ec;
+  --chip1: #c7dfe4;
+  --chip1-ink: #435357;
+  --chip2: #95c3d4;
+  --chip2-ink: #1d4a5e;
+  --chip3: #a9cfdd;
+  --chip3-ink: #0f3a4d;
+  --chip4: #3d86a5;
+  --chip4-ink: #ffffff;
+  --chip5: #14506b;
+  --chip5-ink: #ffffff;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sticky-header-h: 5.2rem;
+  --sticky-tabs-h: 2.5rem;
+  --sticky-subtabs-h: 2.85rem;
+  --sticky-filters-h: 4.5rem;
+
+  --diff-facil-bg: rgba(34, 197, 94, 0.16);
+  --diff-facil-ink: #15803d;
+  --diff-facil-border: rgba(34, 197, 94, 0.35);
+
+  --diff-medio-bg: rgba(234, 179, 8, 0.16);
+  --diff-medio-ink: #a16207;
+  --diff-medio-border: rgba(234, 179, 8, 0.35);
+
+  --diff-avancado-bg: rgba(239, 68, 68, 0.16);
+  --diff-avancado-ink: #b91c1c;
+  --diff-avancado-border: rgba(239, 68, 68, 0.35);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #18262b;
+  --panel: #21343b;
+  --panel-alt: #2f4a53;
+  --ink: #f1f6f7;
+  --muted: #b4c7cb;
+  --line: #3b565e;
+  --channel: #8ed1eb;
+  --pin: #8ed1eb;
+  --pin-active: #ffffff;
+  --chip1: #10262e;
+  --chip1-ink: #e2eef0;
+  --chip2: #2b5463;
+  --chip2-ink: #e6f5fa;
+  --chip3: #33758f;
+  --chip3-ink: #ffffff;
+  --chip4: #6cb8d6;
+  --chip4-ink: #0a1f26;
+  --chip5: #a5dcf0;
+  --chip5-ink: #0a1f26;
+
+  --diff-facil-bg: rgba(74, 222, 128, 0.18);
+  --diff-facil-ink: #86efac;
+  --diff-facil-border: rgba(74, 222, 128, 0.4);
+
+  --diff-medio-bg: rgba(250, 204, 21, 0.18);
+  --diff-medio-ink: #fde047;
+  --diff-medio-border: rgba(250, 204, 21, 0.4);
+
+  --diff-avancado-bg: rgba(248, 113, 113, 0.18);
+  --diff-avancado-ink: #fca5a5;
+  --diff-avancado-border: rgba(248, 113, 113, 0.4);
+}
+
+.equip-tag.diff-facil {
+  background: var(--diff-facil-bg);
+  color: var(--diff-facil-ink);
+  border: 1px solid var(--diff-facil-border);
+}
+
+.equip-tag.diff-medio {
+  background: var(--diff-medio-bg);
+  color: var(--diff-medio-ink);
+  border: 1px solid var(--diff-medio-border);
+}
+
+.equip-tag.diff-avancado {
+  background: var(--diff-avancado-bg);
+  color: var(--diff-avancado-ink);
+  border: 1px solid var(--diff-avancado-border);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scrollbar-color: var(--channel) var(--chip4);
+  min-height: 100%;
+  min-width: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 var(--sans);
+}
+
+.wrap {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+/* Cabeçalho fixo no topo sem frestas */
+.topo {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.85rem 0 0.5rem;
+  margin: 0;
+  background: var(--paper);
+}
+
+.topo-acoes {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.icon-btn,
+.lang-btn {
+  font: 600 0.85rem var(--sans);
+  color: var(--channel);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+}
+
+.icon-btn:hover,
+.lang-btn:hover {
+  border-color: var(--channel);
+}
+
+h1 {
+  font: 700 clamp(1.5rem, 4.5vw, 2.3rem)/1.1 var(--serif);
+  margin: 0 0 0.25rem;
+}
+
+.sub {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+  max-width: 40rem;
+}
+
+/* Tabs principais coladas ao cabeçalho */
+.tabs {
+  position: sticky;
+  top: var(--sticky-header-h);
+  z-index: 28;
+  display: flex;
+  gap: 0.5rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  margin: 0;
+  padding: 0;
+}
+
+.tab {
+  font: 600 0.95rem var(--sans);
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.5rem 0.85rem;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.tab.active {
+  color: var(--channel);
+  border-bottom-color: var(--channel);
+}
+
+/* Sub-tabs (Distritos e Amostras/Nós) coladas às tabs principais */
+.distritos,
+.equip-subtabs {
+  position: sticky;
+  top: calc(var(--sticky-header-h) + var(--sticky-tabs-h));
+  z-index: 26;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.55rem 0;
+  margin: 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.distrito-btn {
+  font: 600 0.85rem var(--sans);
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+}
+
+.distrito-btn:hover {
+  border-color: var(--channel);
+}
+
+.distrito-btn.active {
+  background: var(--channel);
+  color: var(--panel);
+  border-color: var(--channel);
+}
+
+/* Filtros (Pesqueiros e Nós de Pesca) fixos abaixo das sub-tabs */
+.filtros,
+.equip-filters-box {
+  position: sticky;
+  top: calc(
+    var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h)
+  );
+  z-index: 24;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0;
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem;
+}
+
+.filtros label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.equip-filters-box .distritos {
+  position: static;
+  top: auto;
+  z-index: auto;
+  border-bottom: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+select,
+input[type="search"] {
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.45rem 0.5rem;
+  width: 100%;
+}
+
+/* Mapa Interativo SVG */
+.mapa-box {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  background: #cde3eb;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  margin: 0.75rem 0 0;
+  overflow: hidden;
+  user-select: none;
+  scroll-margin-top: calc(
+    var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h) +
+      var(--sticky-filters-h) + 1rem
+  );
+}
+
+[data-theme="dark"] .mapa-box {
+  background: #102a35;
+}
+
+.mapa-box svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mapa-terra {
+  fill: #e6ebe6;
+  stroke: #b5c4c4;
+  stroke-width: 1.2;
+}
+
+[data-theme="dark"] .mapa-terra {
+  fill: #1b2e33;
+  stroke: #2e484f;
+}
+
+.mapa-label {
+  font: 600 11px var(--sans);
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+.mapa-pin {
+  fill: var(--pin);
+  cursor: pointer;
+  transition:
+    r 0.15s ease,
+    fill 0.2s ease;
+}
+
+.mapa-pin:hover {
+  r: 8;
+}
+
+.mapa-pin.selected {
+  fill: var(--pin-active);
+  r: 8.5;
+}
+
+.mapa-popup {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  max-width: 24rem;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+  z-index: 3;
+}
+
+.mapa-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.mapa-popup-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.mapa-popup-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font: 600 0.8rem var(--sans);
+  color: var(--panel);
+  background: var(--channel);
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+}
+
+.mapa-popup-btn:hover {
+  opacity: 0.9;
+}
+
+#contagem {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.local {
+  margin-top: 1.75rem;
+  scroll-margin-top: calc(
+    var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h) +
+      var(--sticky-filters-h) + 1rem
+  );
+  border-radius: 8px;
+  transition:
+    box-shadow 0.4s ease,
+    background-color 0.4s ease;
+}
+
+.local.destaque {
+  box-shadow: 0 0 0 3px var(--channel);
+  background: color-mix(in srgb, var(--channel) 8%, transparent);
+  padding: 0.5rem;
+}
+
+.local h2 {
+  font: 700 1.3rem/1.2 var(--serif);
+  margin: 0;
+}
+
+.local-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.local-link:hover {
+  color: var(--channel);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tipo {
+  margin: 0.15rem 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--channel);
+}
+
+/* Linhas alternadas (zebra) na tabela de espécies */
+.peixe {
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.peixe:nth-of-type(even) {
+  background: var(--panel-alt);
+}
+
+.peixe:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.1rem 0.75rem;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+.peixe summary::after {
+  content: "▾";
+  color: var(--muted);
+  font-size: 0.9rem;
+  transition: transform 0.15s ease;
+  justify-self: end;
+}
+
+.peixe[open] summary::after {
+  transform: rotate(180deg);
+}
+
+summary:focus-visible,
+select:focus-visible,
+input[type="search"]:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--channel);
+  outline-offset: 2px;
+}
+
+.nome {
+  font-weight: 650;
+}
+
+.epoca,
+.min {
+  font-size: 0.85rem;
+  color: var(--muted);
+  grid-column: 1;
+}
+
+.chip {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.c1 {
+  background: var(--chip1);
+  color: var(--chip1-ink);
+}
+.c2 {
+  background: var(--chip2);
+  color: var(--chip2-ink);
+}
+.c3 {
+  background: var(--chip3);
+  color: var(--chip3-ink);
+}
+.c4 {
+  background: var(--chip4);
+  color: var(--chip4-ink);
+}
+.c5 {
+  background: var(--chip5);
+  color: var(--chip5-ink);
+}
+
+.peixe[open] summary {
+  border-bottom: 1px dashed var(--line);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+  padding: 0.75rem;
+}
+
+dt {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+dd {
+  margin: 0;
+}
+
+.vazio {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--panel);
+  border: 1px dashed var(--line);
+}
+
+.btn-limpar {
+  margin-top: 0.6rem;
+  font: 600 0.85rem var(--sans);
+  color: var(--channel);
+  background: transparent;
+  border: 1px solid var(--channel);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+
+.regras {
+  margin-top: 2.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.regras summary {
+  display: block;
+  padding: 0;
+  font-weight: 650;
+}
+
+.regras ul {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.regras li + li {
+  margin-top: 0.4rem;
+}
+
+@media (max-width: 39.99rem) {
+  .peixe summary {
+    grid-template-columns: 1fr auto auto;
+  }
+  .peixe summary::after {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (min-width: 40rem) {
+  summary {
+    grid-template-columns: 1fr 11rem 6.5rem 8.5rem 1.2rem;
+  }
+  .epoca,
+  .min {
+    grid-column: auto;
+  }
+  .chip {
+    grid-column: auto;
+    grid-row: auto;
+    text-align: center;
+  }
+}
+
+/* Botão Voltar ao Topo */
+.go-top-btn {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--channel);
+  color: var(--panel);
+  font: 700 1.1rem var(--sans);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 35;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.go-top-btn:hover {
+  transform: translateY(-2px);
+}
+
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+footer a {
+  color: var(--channel);
+  cursor: pointer;
+}
+
+/* --- Links Interativos de Amostras & Tooltip --- */
+.amostra-ref {
+  background: none;
+  border: none;
+  border-bottom: 1.5px dashed var(--channel);
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--channel);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.amostra-ref:hover {
+  opacity: 0.8;
+}
+
+.amostra-tooltip {
+  position: absolute;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(21rem, calc(100vw - 24px));
+  padding: 0.7rem 0.85rem;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  font-size: 0.83rem;
+  pointer-events: auto;
+}
+
+.amostra-tooltip[hidden] {
+  display: none;
+}
+
+.amostra-tooltip-svg {
+  flex-shrink: 0;
+  width: 96px;
+  color: var(--ink);
+}
+
+.amostra-tooltip-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.amostra-tooltip-body strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--channel);
+  margin-bottom: 0.15rem;
+}
+
+.amostra-tooltip-body p {
+  margin: 0 0 0.3rem;
+  line-height: 1.35;
+}
+
+.amostra-tooltip-hint {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* --- Secção Equipamento & Guias Visuais --- */
+.equip-grid {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.75rem;
+}
+
+/* Cartões alternados (zebra) nas Amostras e Nós de Pesca */
+.equip-card {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  scroll-margin-top: calc(
+    var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h) +
+      var(--sticky-filters-h) + 1rem
+  );
+  transition:
+    box-shadow 0.4s ease,
+    background-color 0.4s ease;
+}
+
+.equip-card:nth-child(even) {
+  background: var(--panel-alt);
+}
+
+.equip-card.destaque {
+  box-shadow: 0 0 0 3px var(--channel);
+  background: color-mix(in srgb, var(--channel) 8%, var(--panel));
+}
+
+.equip-card-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+}
+
+.equip-card-visual svg {
+  width: 100%;
+  max-width: 145px;
+  height: auto;
+  display: block;
+}
+
+.equip-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.equip-card-header h3 {
+  margin: 0;
+  font: 700 1.1rem/1.2 var(--serif);
+}
+
+.equip-tag {
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--chip2);
+  color: var(--chip2-ink);
+}
+
+.equip-desc {
+  margin: 0 0 0.45rem;
+  font-size: 0.92rem;
+}
+
+.equip-use {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.equip-use strong {
+  color: var(--ink);
+}
+
+.equip-link-wrap {
+  margin: 0.6rem 0 0;
+}
+
+.equip-decathlon-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--channel);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.equip-decathlon-link:hover {
+  border-color: var(--channel);
+}
+
+.checklist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.checklist-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.checklist-counter {
+  font-weight: 700;
+  color: var(--accent, #0ea5e9);
+}
+
+.checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.checklist-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.checklist-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  line-height: 1.35;
+}
+
+.checklist-item input[type="checkbox"] {
+  margin-top: 0.2rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent, #0ea5e9);
+}
+
+.checklist-item.checked span {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+/* --- Cabeçalho do Pesqueiro + Link Marés --- */
+.local-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.local-tide-link {
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.filtros-reset-wrap {
+  grid-column: 1 / -1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.filtros-reset-wrap .btn-limpar {
+  margin-top: 0;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* --- Barra de Estado das Marés & Luas --- */
+.tide-moon-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  margin: 10px 0 14px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  font-size: 0.86rem;
+}
+
+.tide-moon-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tide-moon-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.tide-pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.tide-schedule {
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+
+.tide-note {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.tide-badge-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
+.tide-badge-tip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: min(290px, 82vw);
+  padding: 8px 11px;
+  border-radius: 8px;
+  background: #141c24;
+  color: #f4f7fa;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.4;
+  z-index: 60;
+  pointer-events: none;
+  transition:
+    opacity 0.14s ease,
+    visibility 0.14s ease;
+}
+
+.tide-badge-wrap:hover .tide-badge-tip,
+.tide-badge-wrap:focus-within .tide-badge-tip,
+.tide-badge-wrap:active .tide-badge-tip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* --- Barra de filtros recolhível em mobile (sincronizada com sticky) --- */
+.mobile-filtros-bar {
+  display: none;
+}
+
+/* --- Alinhamento do botão limpar na Checklist --- */
+.checklist-actions .btn-limpar {
+  margin-top: 0;
+}
+
+/* --- Filtros dos Nós de Pesca & Especificações das Canas --- */
+.knot-mobile-bar {
+  display: none;
+}
+
+.knot-filters-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.knot-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.knot-filter-label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.cana-title-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--channel);
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.cana-title-link:hover {
+  color: var(--channel);
+}
+
+.cana-specs-list {
+  list-style: none;
+  margin: 8px 0 10px 0;
+  padding: 8px 10px;
+  background: var(--panel-alt);
+  border-left: 3px solid var(--channel);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+}
+
+.cana-specs-list li {
+  line-height: 1.4;
+}
+
+.cana-use-list {
+  list-style: disc;
+  margin: 6px 0 10px 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.cana-use-list li {
+  line-height: 1.45;
+}
+
+.cana-inline-link {
+  color: var(--channel);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cana-inline-link:hover {
+  opacity: 0.82;
+}
+
+@media (max-width: 768px) {
+  .equip-filters-box {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+  }
+
+  .knot-mobile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .knot-mobile-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--panel-alt);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .knot-mobile-summary {
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .equip-filters-box.is-collapsed .knot-filters-grid {
+    display: none;
+  }
+
+  .equip-filters-box:not(.is-collapsed) .knot-filters-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    align-items: start;
+  }
+
+  .knot-filter-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .knot-filter-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    margin-right: 0;
+    margin-bottom: 2px;
+  }
+
+  .knot-filter-group .distrito-btn {
+    width: 100%;
+    text-align: left;
+    padding: 5px 8px;
+    font-size: 0.78rem;
+    margin: 0;
+  }
+
+  .knot-clear-row {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-filtros-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    position: sticky;
+    top: calc(
+      var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h)
+    );
+    z-index: 25;
+    background: var(--paper);
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .mobile-filtros-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel-alt);
+    color: var(--ink);
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .mobile-filtros-summary {
+    font-size: 0.78rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .filtros.is-collapsed-mobile {
+    display: none !important;
+  }
+
+  .filtros:not(.is-collapsed-mobile) {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    position: sticky;
+    top: calc(
+      var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h) +
+        46px
+    );
+    z-index: 24;
+    background: var(--paper);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .filtros:not(.is-collapsed-mobile) > *:first-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  .filtros:not(.is-collapsed-mobile) label {
+    font-size: 0.75rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  .filtros:not(.is-collapsed-mobile) input,
+  .filtros:not(.is-collapsed-mobile) select {
+    padding: 6px 8px !important;
+    font-size: 0.84rem !important;
+    min-height: 34px !important;
+  }
+}
+
+@media (max-width: 36rem) {
+  .equip-card {
+    grid-template-columns: 1fr;
+  }
+  .equip-card-visual {
+    max-width: 220px;
+  }
+}
