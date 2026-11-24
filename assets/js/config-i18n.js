@@ -24,7 +24,7 @@ const RANK = {
 const I18N = {
   pt: {
     title: "Almanaque do Pescador",
-    sub: "Guia prático de pesqueiros, marés, épocas, iscos, montagens e regras.",
+    sub: "Guia prático de pesqueiros, marés, épocas, iscos, montagens e regras de Portugal.",
     metaDesc:
       "Almanaque do Pescador: guia prático de pesca com os melhores pesqueiros, marés, épocas, montagens, nós, checklist e regras de pesca lúdica em Portugal.",
     toggleBtn: "EN",
@@ -74,7 +74,7 @@ const I18N = {
   },
   en: {
     title: "Angler's Almanac",
-    sub: "Practical guide to fishing spots, tides, seasons, baits, rigs, and regulations.",
+    sub: "Practical guide to fishing spots, tides, seasons, baits, rigs, and regulations of Portugal.",
     metaDesc:
       "Angler's Almanac: practical fishing guide with top spots, tides, seasons, rigs, knots, checklist, and recreational fishing rules in Portugal.",
     toggleBtn: "PT",

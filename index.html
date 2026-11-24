@@ -34,6 +34,7 @@
   <link rel="canonical" href="https://eduardasrbastos.github.io/angler-almanac" />
   <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 
 <body>
@@ -42,7 +43,7 @@
       <div>
         <h1 id="site-title">Almanaque do Pescador</h1>
         <p id="site-sub" class="sub">
-          Guia prático de pesqueiros, marés, épocas, iscos, montagens e regras.
+          Guia prático de pesqueiros, marés, épocas, iscos, montagens e regras de Portugal.
         </p>
       </div>
       <div class="topo-acoes">
@@ -129,7 +130,7 @@
   </button>
 
 
-  <script src="assets/data/placesData.js"></script>
+  <script src="assets/data/spotsData.js"></script>
   <script src="assets/data/equipLinks.js"></script>
   <script src="assets/data/luresData.js"></script>
   <script src="assets/data/knotsData.js"></script>
@@ -145,6 +146,17 @@
   <script src="assets/js/equip.js"></script>
   <script src="assets/js/ui-layout.js"></script>
   <script src="assets/js/spots.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./sw.js")
+          .catch((err) => console.warn("SW failed:", err));
+      });
+    }
+  </script>
+
 </body>
 
 </html>
