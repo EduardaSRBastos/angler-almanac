@@ -1,17 +1,17 @@
 :root {
   color-scheme: light;
-  --paper: #f0f7f7;
-  --panel: #f5fcff;
-  --panel-alt: #ecf5f9;
+  --paper: #d7e7ee;
+  --panel: #edfaff;
+  --panel-alt: #d5eaf2;
   --ink: #16282d;
   --muted: #566b70;
-  --line: #cbd7d8;
+  --line: #9ab5b8;
   --channel: #1f6584;
   --pin: #3d86a5;
   --pin-active: #c3e1ec;
-  --chip1: #c7dfe4;
+  --chip1: #afdfe9;
   --chip1-ink: #435357;
-  --chip2: #95c3d4;
+  --chip2: #aad7e7;
   --chip2-ink: #1d4a5e;
   --chip3: #a9cfdd;
   --chip3-ink: #0f3a4d;
@@ -19,6 +19,7 @@
   --chip4-ink: #ffffff;
   --chip5: #14506b;
   --chip5-ink: #ffffff;
+  --chip6: #a7cedc;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sticky-header-h: 5.2rem;
@@ -60,6 +61,7 @@
   --chip4-ink: #0a1f26;
   --chip5: #a5dcf0;
   --chip5-ink: #0a1f26;
+  --chip6: #446472;
 
   --diff-facil-bg: rgba(74, 222, 128, 0.18);
   --diff-facil-ink: #86efac;
@@ -795,6 +797,10 @@ footer a {
   color: var(--ink);
 }
 
+.equip-card.equip-card--no-visual {
+  grid-template-columns: 1fr;
+}
+
 .equip-card-visual svg {
   width: 100%;
   max-width: 145px;
@@ -1105,7 +1111,7 @@ footer a {
   list-style: none;
   margin: 8px 0 10px 0;
   padding: 8px 10px;
-  background: var(--panel-alt);
+  background: var(--chip6);
   border-left: 3px solid var(--channel);
   border-radius: 6px;
   display: flex;

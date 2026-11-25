@@ -1,4 +1,3 @@
-
 // =========================================================
 // PESQUEIROS: Filtros, Idioma e Renderização
 // =========================================================
@@ -372,7 +371,12 @@ function render() {
             ${field(t.fHorario, r.horario)}
             ${field(t.fMare, r.mare)}
             ${field(t.fPreferencia, r.preferencia)}
-            ${field(t.fIsco, r.isco)}
+            ${field(
+              t.fIsco,
+              typeof formatAmostraWithLinks === "function"
+                ? formatAmostraWithLinks(r.isco)
+                : r.isco,
+            )}
             ${field(
               t.fAmostra,
               typeof formatAmostraWithLinks === "function"
@@ -397,6 +401,52 @@ function render() {
     });
   });
 }
+
+window.jumpToSpecies = function (speciesName) {
+  if (!speciesName) return;
+
+  if (typeof activateMainTab === "function") {
+    activateMainTab("pesqueiros");
+  } else {
+    const pesqBtn = document.getElementById("tab-pesqueiros");
+    if (pesqBtn) pesqBtn.click();
+  }
+
+  if (els.busca) els.busca.value = "";
+  if (els.tipo) els.tipo.value = "";
+  if (els.hip) els.hip.value = "";
+  selectedLocal = null;
+
+  if (els.peixe) {
+    const normalize = (s) =>
+      String(s || "")
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .toLowerCase()
+        .replace(/s$/, "")
+        .trim();
+
+    const target = normalize(speciesName);
+    const matchOpt = Array.from(els.peixe.options).find((opt) => {
+      if (!opt.value) return false;
+      const val = normalize(opt.value);
+      return val === target || val.includes(target) || target.includes(val);
+    });
+
+    if (matchOpt) {
+      els.peixe.value = matchOpt.value;
+    }
+  }
+
+  render();
+
+  if (typeof syncStickyHeights === "function") {
+    syncStickyHeights();
+  }
+  if (typeof scrollPageToTop === "function") {
+    scrollPageToTop();
+  }
+};
 
 // Eventos dos filtros
 ["mes", "tipo", "peixe", "hip"].forEach((id) => {

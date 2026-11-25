@@ -1,7 +1,7 @@
 let tooltipHideTimer = null;
 
 function escapeRegExp(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function stripHtmlTags(str) {
@@ -14,6 +14,8 @@ function stripHtmlTags(str) {
 }
 
 function buildEquipRefEntries(lang) {
+  const activeLang =
+    lang || (typeof currentLang !== "undefined" ? currentLang : "pt");
   const entries = [];
   const addTerms = (subtab, item) => {
     const rawTerms = new Set();
@@ -21,12 +23,18 @@ function buildEquipRefEntries(lang) {
       item.matches.forEach((m) => m && rawTerms.add(m.trim()));
     }
     const nameObj = item.name || item.nome || {};
-    [nameObj[lang], nameObj.pt, nameObj.en].forEach((n) => {
+    [nameObj[activeLang], nameObj.pt, nameObj.en, item.nomeAlt].forEach((n) => {
       if (!n) return;
       const clean = stripHtmlTags(n)
         .replace(/\s*\([^)]*\)/g, "")
         .trim();
-      if (clean) rawTerms.add(clean);
+      if (clean) {
+        rawTerms.add(clean);
+        clean.split(/\s*\/\s*/).forEach((part) => {
+          const p = part.trim();
+          if (p.length >= 4) rawTerms.add(p);
+        });
+      }
       if (subtab === "nos") {
         const withoutPrefix = clean
           .replace(/^Nó\s+(de\s+|do\s+|da\s+)?/i, "")
@@ -51,6 +59,7 @@ function buildEquipRefEntries(lang) {
 
   if (typeof EQUIP_DATA !== "undefined") {
     (EQUIP_DATA.amostras || []).forEach((item) => addTerms("amostras", item));
+    (EQUIP_DATA.iscos || []).forEach((item) => addTerms("iscos", item));
     (EQUIP_DATA.nos || []).forEach((item) => addTerms("nos", item));
     (EQUIP_DATA.montagens || []).forEach((item) => addTerms("montagens", item));
   }
@@ -61,20 +70,67 @@ function buildEquipRefEntries(lang) {
 
 function formatAmostraWithLinks(text) {
   if (!text || text === "—") return text;
-  let result = text;
-  EQUIP_DATA.amostras.forEach((item) => {
-    const pattern = new RegExp(`\\b(${item.matches.join("|")})\\b`, "gi");
-    result = result.replace(
-      pattern,
-      `<button type="button" class="amostra-ref" data-equip-subtab="amostras" data-amostra-id="${item.id}">$1</button>`,
-    );
-  });
+  let result = String(text);
+
+  if (typeof EQUIP_DATA !== "undefined" && Array.isArray(EQUIP_DATA.amostras)) {
+    EQUIP_DATA.amostras.forEach((item) => {
+      if (!Array.isArray(item.matches) || !item.matches.length) return;
+      const pattern = new RegExp(`\\b(${item.matches.join("|")})\\b`, "gi");
+      result = result.replace(
+        pattern,
+        `<button type="button" class="amostra-ref" data-equip-subtab="amostras" data-amostra-id="${item.id}">$1</button>`,
+      );
+    });
+  }
+
+  if (typeof EQUIP_DATA !== "undefined" && Array.isArray(EQUIP_DATA.iscos)) {
+    const lang = typeof currentLang !== "undefined" ? currentLang : "pt";
+    const parts = result.split(/(<[^>]+>)/g);
+    result = parts
+      .map((part) => {
+        if (part.startsWith("<")) return part;
+        let seg = part;
+        EQUIP_DATA.iscos.forEach((item) => {
+          const terms = new Set();
+          const nameObj = item.nome || item.name || {};
+          [nameObj[lang], nameObj.pt, nameObj.en, item.nomeAlt].forEach((n) => {
+            if (!n) return;
+            const clean = stripHtmlTags(n)
+              .replace(/\s*\([^)]*\)/g, "")
+              .trim();
+            if (clean.length >= 4) terms.add(clean);
+            clean.split(/\s*\/\s*/).forEach((p) => {
+              if (p.trim().length >= 4) terms.add(p.trim());
+            });
+          });
+          if (!terms.size) return;
+          const sorted = Array.from(terms).sort((a, b) => b.length - a.length);
+          const pattern = new RegExp(
+            `(?<![\\wÀ-ÿ])(${sorted.map(escapeRegExp).join("|")})(?![\\wÀ-ÿ])`,
+            "gi",
+          );
+          seg = seg.replace(
+            pattern,
+            `<button type="button" class="amostra-ref" data-equip-subtab="iscos" data-amostra-id="${item.id}">$1</button>`,
+          );
+        });
+        return seg;
+      })
+      .join("");
+  }
+
   return result;
 }
 
 function formatMontagemWithLinks(text, lang) {
-  if (!text || text === "—") return text;
-  const entries = buildEquipRefEntries(lang);
+  const activeLang =
+    lang || (typeof currentLang !== "undefined" ? currentLang : "pt");
+  if (text && typeof text === "object") {
+    text = text[activeLang] || text.pt || "";
+  }
+  if (typeof text !== "string" || !text || text === "—") return text || "";
+
+  const entries = buildEquipRefEntries(activeLang);
   if (!entries.length) return text;
 
   const parts = text.split(/(<[^>]+>)/g);
@@ -148,7 +204,9 @@ function showAmostraTooltip(triggerEl, amostraId, subtab = "amostras") {
   const titleObj = item.name || item.nome || {};
   const cleanTitle = stripHtmlTags(titleObj[lang] || titleObj.pt || "");
   const summaryText =
-    (item.short && item.short[lang]) || (item.desc && item.desc[lang]) || "";
+    (item.short && (item.short[lang] || item.short.pt)) ||
+    (item.desc && (item.desc[lang] || item.desc.pt)) ||
+    "";
   const hintText =
     subtab === "nos"
       ? lang === "pt"
@@ -158,12 +216,20 @@ function showAmostraTooltip(triggerEl, amostraId, subtab = "amostras") {
         ? lang === "pt"
           ? "Clica para ver esta montagem →"
           : "Click to view this rig →"
-        : lang === "pt"
-          ? "Clica para ver no guia →"
-          : "Click to view in guide →";
+        : subtab === "iscos"
+          ? lang === "pt"
+            ? "Clica para ver este isco →"
+            : "Click to view this bait →"
+          : lang === "pt"
+            ? "Clica para ver no guia →"
+            : "Click to view in guide →";
+
+  const svgHtml = item.svg
+    ? `<div class="amostra-tooltip-svg">${item.svg}</div>`
+    : "";
 
   tip.innerHTML = `
-    <div class="amostra-tooltip-svg">${item.svg}</div>
+    ${svgHtml}
     <div class="amostra-tooltip-body">
       <strong>${cleanTitle}</strong>
       <p>${summaryText}</p>
