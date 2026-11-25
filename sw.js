@@ -6,6 +6,7 @@ const ASSETS_TO_CACHE = [
   "./styles.css",
   "./assets/data/spotsData.js",
   "./assets/data/equipLinks.js",
+  "./assets/data/baitsData.js",
   "./assets/data/luresData.js",
   "./assets/data/knotsData.js",
   "./assets/data/rodsRigsData.js",

@@ -84,6 +84,16 @@ function syncStickyHeights() {
   if (tabs && tabs.offsetHeight > 0) {
     root.style.setProperty("--sticky-tabs-h", `${tabs.offsetHeight}px`);
   }
+  const activeTide = activePanel
+    ? activePanel.querySelector(".tide-bar, #tide-bar")
+    : null;
+  root.style.setProperty(
+    "--sticky-tide-h",
+    activeTide && activeTide.offsetHeight > 0
+      ? `${activeTide.offsetHeight}px`
+      : "0px",
+  );
+
   if (activeSubtabs && activeSubtabs.offsetHeight > 0) {
     root.style.setProperty(
       "--sticky-subtabs-h",

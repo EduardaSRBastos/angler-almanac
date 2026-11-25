@@ -5,6 +5,7 @@ let currentKnotDifficulty =
   sessionStorage.getItem("almanac-knot-diff") || "todos";
 let mobileKnotFiltersOpen =
   sessionStorage.getItem("almanac-knot-filters-open") === "1";
+let currentIscoCategory = sessionStorage.getItem("almanac-isco-cat") || "todos";
 
 function formatCanaTitle(rawTitle, fallbackUrl) {
   if (!rawTitle) return "";
@@ -22,16 +23,200 @@ function formatCanaTitle(rawTitle, fallbackUrl) {
   return cleanText;
 }
 
+function appendArrowToExternalLinks(html) {
+  if (!html) return "";
+  return String(html).replace(
+    /<a\b([^>]*href\s*=\s*["']https?:\/\/[^"']+["'][^>]*)>([\s\S]*?)<\/a>/gi,
+    (match, attrs, inner) => {
+      const textOnly = inner.replace(/<[^>]*>/g, "").trim();
+      if (textOnly.endsWith("↗")) return match;
+      return `<a${attrs}>${inner.trim()} ↗</a>`;
+    },
+  );
+}
+
+function getAvailableSpeciesSet() {
+  const set = new Set();
+  const norm = (s) =>
+    String(s || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/s$/, "")
+      .trim();
+
+  if (typeof rows !== "undefined" && Array.isArray(rows) && rows.length > 0) {
+    rows.forEach((r) => {
+      if (r.peixe) set.add(norm(r.peixe));
+    });
+  } else {
+    const sel = document.getElementById("peixe");
+    if (sel) {
+      Array.from(sel.options).forEach((o) => {
+        if (o.value) set.add(norm(o.value));
+      });
+    }
+  }
+  return set;
+}
+
+function linkifySpeciesNames(text, lang) {
+  if (!text) return "";
+  const availableSpecies = getAvailableSpeciesSet();
+  const norm = (s) =>
+    String(s || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/s$/, "")
+      .trim();
+
+  const speciesList = [
+    {
+      query: "Robalo",
+      patterns: [
+        "robalos",
+        "robaletes",
+        "robalo",
+        "robalete",
+        "sea bass",
+        "seabass",
+      ],
+    },
+    {
+      query: "Dourada",
+      patterns: [
+        "douradas",
+        "douradotas",
+        "dourada",
+        "douradota",
+        "gilt-head bream",
+        "gilthead bream",
+      ],
+    },
+    {
+      query: "Sargo",
+      patterns: ["sargos", "sarguinhos", "sargo", "white seabream", "seabream"],
+    },
+    {
+      query: "Corvina",
+      patterns: ["corvinas", "corvina", "meagre"],
+    },
+    {
+      query: "Linguado",
+      patterns: ["linguados", "linguado", "sole"],
+    },
+    {
+      query: "Solha",
+      patterns: ["solhas", "solha", "flounder", "plaice"],
+    },
+    {
+      query: "Tainha",
+      patterns: ["tainhas", "tainha", "fataça", "fataças", "mullet"],
+    },
+    {
+      query: "Enguia",
+      patterns: ["enguias", "enguia", "eel"],
+    },
+    {
+      query: "Choco",
+      patterns: ["chocos", "choco", "cuttlefish"],
+    },
+    {
+      query: "Lula",
+      patterns: ["lulas", "lula", "squid"],
+    },
+    {
+      query: "Polvo",
+      patterns: ["polvos", "polvo", "octopus"],
+    },
+    {
+      query: "Bailas",
+      patterns: ["bailas", "baila", "spotted seabass"],
+    },
+    {
+      query: "Faneca",
+      patterns: ["fanecas", "faneca", "pouting"],
+    },
+    {
+      query: "Safio",
+      patterns: ["safios", "safio", "congro", "conger"],
+    },
+    {
+      query: "Achigã",
+      patterns: ["achigãs", "achigã", "largemouth bass", "black bass"],
+    },
+    {
+      query: "Carpa",
+      patterns: ["carpas", "carpa", "carp"],
+    },
+    {
+      query: "Barbo",
+      patterns: ["barbos", "barbo", "barbel"],
+    },
+  ];
+
+  const availableArr = Array.from(availableSpecies);
+  const isAvailable = (queryName) => {
+    if (availableArr.length === 0) return true;
+    const target = norm(queryName);
+    return availableArr.some(
+      (entry) =>
+        entry === target ||
+        entry.startsWith(`${target}-`) ||
+        entry.startsWith(`${target} `) ||
+        target.startsWith(`${entry}-`) ||
+        target.startsWith(`${entry} `),
+    );
+  };
+
+  const allPatterns = [];
+  const patternToQuery = new Map();
+  speciesList.forEach((sp) => {
+    if (!isAvailable(sp.query)) {
+      return;
+    }
+    sp.patterns.forEach((p) => {
+      allPatterns.push(p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      patternToQuery.set(p.toLowerCase(), sp.query);
+    });
+  });
+
+  if (!allPatterns.length) return String(text);
+
+  allPatterns.sort((a, b) => b.length - a.length);
+  const regex = new RegExp(
+    `(?<![\\p{L}-])(${allPatterns.join("|")})(?![\\p{L}-])`,
+    "giu",
+  );
+
+  const parts = String(text).split(/(<[^>]+>)/g);
+  return parts
+    .map((part) => {
+      if (part.startsWith("<")) return part;
+      return part.replace(regex, (match) => {
+        const query = patternToQuery.get(match.toLowerCase()) || match;
+        const titleHint =
+          lang === "pt"
+            ? `Filtrar pesqueiros por ${query}`
+            : `Filter spots by ${query}`;
+        return `<a href="#panel-pesqueiros" class="cana-inline-link species-jump-link" data-species="${query}" title="${titleHint}">${match}</a>`;
+      });
+    })
+    .join("");
+}
+
 function formatStructuredEquipLines(value, lang, linkify = true) {
   if (!value) return "";
   if (Array.isArray(value)) {
     const lis = value
       .map((line) => {
-        const formatted = linkify ? formatMontagemWithLinks(line, lang) : line;
+        let formatted = linkify ? formatMontagemWithLinks(line, lang) : line;
+        formatted = linkifySpeciesNames(formatted, lang);
         return `<li>${formatted}</li>`;
       })
       .join("");
-    return `<ul class="cana-use-list">${lis}</ul>`;
+    return appendArrowToExternalLinks(`<ul class="cana-use-list">${lis}</ul>`);
   }
   const text = String(value);
   if (text.includes(" · ")) {
@@ -46,17 +231,19 @@ function formatStructuredEquipLines(value, lang, linkify = true) {
             /^([^:]{2,32}:)/,
             "<strong>$1</strong>",
           );
-          const formatted = linkify
+          let formatted = linkify
             ? formatMontagemWithLinks(withBoldLabel, lang)
             : withBoldLabel;
+          formatted = linkifySpeciesNames(formatted, lang);
           return `<li>${formatted}</li>`;
         })
         .join("");
-      return `<ul class="cana-use-list">${lis}</ul>`;
+      return appendArrowToExternalLinks(`<ul class="cana-use-list">${lis}</ul>`);
     }
   }
-  const formatted = linkify ? formatMontagemWithLinks(text, lang) : text;
-  return `<p class="equip-use">${formatted}</p>`;
+  let formatted = linkify ? formatMontagemWithLinks(text, lang) : text;
+  formatted = linkifySpeciesNames(formatted, lang);
+  return appendArrowToExternalLinks(`<p class="equip-use">${formatted}</p>`);
 }
 
 function formatSpecsBlock(specsValue) {
@@ -68,12 +255,14 @@ function formatSpecsBlock(specsValue) {
         .map((s) => s.trim())
         .filter(Boolean);
   if (!lines.length) return "";
-  return `<ul class="cana-specs-list">${lines
-    .map((line) => {
-      const htmlLine = line.replace(/^([^:]{2,30}:)/, "<strong>$1</strong>");
-      return `<li>${htmlLine}</li>`;
-    })
-    .join("")}</ul>`;
+  return appendArrowToExternalLinks(
+    `<ul class="cana-specs-list">${lines
+      .map((line) => {
+        const htmlLine = line.replace(/^([^:]{2,30}:)/, "<strong>$1</strong>");
+        return `<li>${htmlLine}</li>`;
+      })
+      .join("")}</ul>`,
+  );
 }
 
 function renderEquipamento() {
@@ -84,24 +273,41 @@ function renderEquipamento() {
   const labels = {
     pt: {
       amostras: "Amostras",
+      iscos: "Iscos Naturais",
       nos: "Nós de Pesca",
       montagens: "Montagens",
       canas: "Canas",
       checklist: "Checklist",
       uso: "Quando / como usar",
+      usoIsco: "Espécies-alvo e dicas",
+      condicoesLabel: "Condições",
+      quandoUsarLabel: "Quando usar",
       usoNo: "Para que serve / quando usar",
       usoMontagem: "Porquê usar esta montagem",
       usoCana: "Material compatível e recomendações:",
+      anzolLabel: "Anzol",
+      iscagemLabel: "Iscagem",
+      conservacaoLabel: "Conservação",
       decathlon: "Ver na Decathlon ↗",
       tutorialImg: "Imagem Tutorial ↗",
       tutorialVid: "Vídeo Tutorial ↗",
       catLabel: "Finalidade:",
       diffLabel: "Dificuldade:",
+      iscoCatLabel: "Categoria:",
       clearFilters: "✕ Limpar filtros",
       filterToggle: "Filtrar nós",
       allKnots: "Todos os nós",
       emptyNos: "Nenhum nó encontrado com esta combinação de filtros.",
+      emptyIscos: "Nenhum isco encontrado nesta categoria.",
       recursos: "Links Úteis",
+      iscoCats: {
+        todos: "Todos",
+        minhocas: "Minhocas",
+        "moluscos-crustaceos": "Moluscos e Crustáceos",
+        cefalopodes: "Cefalópodes",
+        peixe: "Peixe",
+        "engodos-atrativos": "Engodos e Atrativos",
+      },
       cats: {
         todos: "Todos",
         anzol: "Anzol / Snap",
@@ -118,24 +324,41 @@ function renderEquipamento() {
     },
     en: {
       amostras: "Lures",
+      iscos: "Natural Baits",
       nos: "Fishing Knots",
       montagens: "Rigs",
       canas: "Rods",
       checklist: "Checklist",
       uso: "When / how to use",
+      usoIsco: "Target species & tips",
+      condicoesLabel: "Conditions",
+      quandoUsarLabel: "When to use",
       usoNo: "Purpose & when to use",
       usoMontagem: "Why use this rig",
       usoCana: "Compatible tackle & recommendations:",
+      anzolLabel: "Hook",
+      iscagemLabel: "Rigging",
+      conservacaoLabel: "Storage",
       decathlon: "View on Decathlon ↗",
       tutorialImg: "Image Tutorial ↗",
       tutorialVid: "Video Tutorial ↗",
       catLabel: "Purpose:",
       diffLabel: "Difficulty:",
+      iscoCatLabel: "Category:",
       clearFilters: "✕ Clear filters",
       filterToggle: "Filter knots",
       allKnots: "All knots",
       emptyNos: "No knots match the selected filters.",
+      emptyIscos: "No baits match this category.",
       recursos: "Useful Links",
+      iscoCats: {
+        todos: "All",
+        minhocas: "Worms",
+        "moluscos-crustaceos": "Shellfish & Crabs",
+        cefalopodes: "Cephalopods",
+        peixe: "Baitfish",
+        "engodos-atrativos": "Groundbaits & Scents",
+      },
       cats: {
         todos: "All",
         anzol: "Hook / Snap",
@@ -152,6 +375,8 @@ function renderEquipamento() {
     },
   }[lang];
 
+  const hasIscos =
+    Array.isArray(EQUIP_DATA.iscos) && EQUIP_DATA.iscos.length > 0;
   const hasMontagens =
     Array.isArray(EQUIP_DATA.montagens) && EQUIP_DATA.montagens.length > 0;
   const hasCanas =
@@ -159,6 +384,9 @@ function renderEquipamento() {
   const hasChecklist =
     Boolean(EQUIP_DATA.checklist) && Array.isArray(EQUIP_DATA.checklist.grupos);
 
+  if (currentEquipSubtab === "iscos" && !hasIscos) {
+    currentEquipSubtab = "amostras";
+  }
   if (currentEquipSubtab === "canas" && !hasCanas) {
     currentEquipSubtab = "amostras";
   }
@@ -180,6 +408,11 @@ function renderEquipamento() {
   const subtabsHtml = `
     <div class="distritos equip-subtabs" role="tablist">
       <button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "amostras" ? "active" : ""}" data-subtab="amostras">${labels.amostras}</button>
+      ${
+        hasIscos
+          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "iscos" ? "active" : ""}" data-subtab="iscos">${labels.iscos}</button>`
+          : ""
+      }
       <button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "nos" ? "active" : ""}" data-subtab="nos">${labels.nos}</button>
       ${
         hasMontagens
@@ -267,6 +500,10 @@ function renderEquipamento() {
 
   let items = EQUIP_DATA[currentEquipSubtab] || [];
 
+  if (currentEquipSubtab === "iscos" && currentIscoCategory !== "todos") {
+    items = items.filter((item) => item.categoria === currentIscoCategory);
+  }
+
   const activeFilterCount =
     (currentKnotCategory !== "todos" ? 1 : 0) +
     (currentKnotDifficulty !== "todos" ? 1 : 0);
@@ -283,6 +520,29 @@ function renderEquipamento() {
       return catOk && diffOk;
     });
   }
+
+  const iscosFiltersHtml =
+    currentEquipSubtab === "iscos"
+      ? `
+    <div class="equip-filters-box" style="margin-bottom:14px;">
+      <div class="knot-filters-grid">
+        <div class="distritos knot-filter-group">
+          <span class="knot-filter-label">${labels.iscoCatLabel}</span>
+          ${Object.entries(labels.iscoCats)
+            .map(
+              ([key, text]) =>
+                `<button type="button" class="distrito-btn equip-isco-cat-btn ${currentIscoCategory === key ? "active" : ""}" data-isco-cat="${key}">${text}</button>`,
+            )
+            .join("")}
+        </div>
+        ${
+          currentIscoCategory !== "todos"
+            ? `<div class="knot-clear-row"><button type="button" id="btn-reset-iscos" class="distrito-btn" style="border-color:var(--channel);color:var(--channel);font-weight:600;">${labels.clearFilters}</button></div>`
+            : ""
+        }
+      </div>
+    </div>`
+      : "";
 
   const summaryParts = [];
   if (currentKnotCategory !== "todos") {
@@ -341,22 +601,25 @@ function renderEquipamento() {
   };
 
   const usoLabel =
-    currentEquipSubtab === "nos"
-      ? labels.usoNo
-      : currentEquipSubtab === "montagens"
-        ? labels.usoMontagem
-        : currentEquipSubtab === "canas"
-          ? labels.usoCana
-          : labels.uso;
+    currentEquipSubtab === "iscos"
+      ? labels.usoIsco
+      : currentEquipSubtab === "nos"
+        ? labels.usoNo
+        : currentEquipSubtab === "montagens"
+          ? labels.usoMontagem
+          : currentEquipSubtab === "canas"
+            ? labels.usoCana
+            : labels.uso;
 
   panel.innerHTML = `   
     ${subtabsHtml}
+    ${iscosFiltersHtml}
     ${knotsFiltersHtml}
     ${
       items.length === 0
         ? `<div class="vazio" style="padding:18px;">
-            <p style="margin:0 0 10px 0;opacity:0.8;">${labels.emptyNos}</p>
-            <button type="button" id="btn-reset-knots-empty" class="btn-limpar">${labels.clearFilters}</button>
+            <p style="margin:0 0 10px 0;opacity:0.8;">${currentEquipSubtab === "iscos" ? labels.emptyIscos : labels.emptyNos}</p>
+            <button type="button" id="${currentEquipSubtab === "iscos" ? "btn-reset-iscos-empty" : "btn-reset-knots-empty"}" class="btn-limpar">${labels.clearFilters}</button>
           </div>`
         : `<div class="equip-grid">
       ${items
@@ -383,16 +646,72 @@ function renderEquipamento() {
                 ? `<span class="equip-tag">${tagObj[lang]}</span>`
                 : "";
 
+          const isIsco = currentEquipSubtab === "iscos";
+          const anzolVal =
+            typeof item.anzol === "string"
+              ? item.anzol
+              : item.anzol?.[lang] || item.anzol?.pt || "";
+          const iscagemVal =
+            typeof item.iscagem === "string"
+              ? item.iscagem
+              : item.iscagem?.[lang] || item.iscagem?.pt || "";
+          const conservacaoVal =
+            typeof item.conservacao === "string"
+              ? item.conservacao
+              : item.conservacao?.[lang] || item.conservacao?.pt || "";
+
           const specsHtml =
             currentEquipSubtab === "canas" && item.specs
               ? formatSpecsBlock(item.specs[lang])
+              : isIsco
+                ? appendArrowToExternalLinks(`
+                <ul class="cana-specs-list">
+                  ${anzolVal ? `<li><strong>${labels.anzolLabel}:</strong> ${anzolVal}</li>` : ""}
+                  ${iscagemVal ? `<li><strong>${labels.iscagemLabel}:</strong> ${iscagemVal}</li>` : ""}
+                  ${conservacaoVal ? `<li><strong>${labels.conservacaoLabel}:</strong> ${conservacaoVal}</li>` : ""}
+                </ul>`)
+                : "";
+
+          const condicoesRaw =
+            isIsco && item.condicoes
+              ? typeof item.condicoes === "string"
+                ? item.condicoes
+                : item.condicoes[lang] || item.condicoes.pt || ""
+              : "";
+          const condicoesHtml = condicoesRaw
+            ? appendArrowToExternalLinks(
+                `<p class="equip-use"><strong>${labels.condicoesLabel}:</strong> ${condicoesRaw}</p>`,
+              )
+            : "";
+
+          const quandoUsarRaw =
+            isIsco && item.quandoUsar
+              ? typeof item.quandoUsar === "string"
+                ? item.quandoUsar
+                : item.quandoUsar[lang] || item.quandoUsar.pt || ""
+              : "";
+          const quandoUsarHtml = quandoUsarRaw
+            ? appendArrowToExternalLinks(
+                `<p class="equip-use"><strong>${labels.quandoUsarLabel}:</strong> ${linkifySpeciesNames(quandoUsarRaw, lang)}</p>`,
+              )
+            : "";
+
+          const legalNoticeHtml =
+            isIsco && (item.avisoLegal?.[lang] || item.avisoLegal?.pt)
+              ? appendArrowToExternalLinks(
+                  `<p style="font-size:0.82rem;color:var(--muted);margin:6px 0 0 0;">⚠️ ${item.avisoLegal[lang] || item.avisoLegal.pt}</p>`,
+                )
               : "";
 
           const links = [];
           if (currentEquipSubtab !== "canas") {
             if (item.decathlonUrl) {
+              const decLbl =
+                item.decathlonLabel && typeof item.decathlonLabel === "object"
+                  ? item.decathlonLabel[lang] || item.decathlonLabel.pt
+                  : item.decathlonLabel || labels.decathlon;
               links.push(
-                `<a href="${item.decathlonUrl}" target="_blank" rel="noopener noreferrer" class="equip-decathlon-link">${labels.decathlon}</a>`,
+                `<a href="${item.decathlonUrl}" target="_blank" rel="noopener noreferrer" class="equip-decathlon-link">${decLbl}</a>`,
               );
             }
             if (Array.isArray(item.extraLinks)) {
@@ -424,33 +743,55 @@ function renderEquipamento() {
             currentEquipSubtab === "montagens" ||
             currentEquipSubtab === "canas";
 
-          const descHtml = shouldLinkify
-            ? formatMontagemWithLinks(item.desc[lang], lang)
-            : item.desc[lang];
+          const rawDesc =
+            typeof item.desc === "object"
+              ? item.desc?.[lang] || item.desc?.pt || ""
+              : item.desc || "";
+
+          const descHtml = appendArrowToExternalLinks(
+            typeof formatMontagemWithLinks === "function"
+              ? formatMontagemWithLinks(rawDesc, lang)
+              : rawDesc,
+          );
+
+          const useRaw =
+            (item.use && (item.use[lang] || item.use.pt)) ||
+            (item.especies && (item.especies[lang] || item.especies.pt)) ||
+            "";
+
+          const useFormatted = linkifySpeciesNames(
+            shouldLinkify ? formatMontagemWithLinks(useRaw, lang) : useRaw,
+            lang,
+          );
 
           const useHtml =
             currentEquipSubtab === "canas"
-              ? `<div class="equip-use" style="margin-top:8px;"><strong>${usoLabel}</strong>${formatStructuredEquipLines(item.use[lang], lang, true)}</div>`
-              : `<p class="equip-use"><strong>${usoLabel}:</strong> ${
-                  shouldLinkify
-                    ? formatMontagemWithLinks(item.use[lang], lang)
-                    : item.use[lang]
-                }</p>`;
+              ? `<div class="equip-use" style="margin-top:8px;"><strong>${usoLabel}</strong>${formatStructuredEquipLines(useRaw, lang, true)}</div>`
+              : useRaw
+                ? `<p class="equip-use"><strong>${usoLabel}:</strong> ${appendArrowToExternalLinks(useFormatted)}</p>`
+                : "";
+
+          const visualHtml = item.svg
+            ? `<div class="equip-card-visual">${item.svg}</div>`
+            : "";
 
           return `
-        <article class="equip-card" id="equip-${item.id}">
-          <div class="equip-card-visual">${item.svg}</div>
+        <article class="equip-card ${item.svg ? "" : "equip-card--no-visual"}" id="equip-${item.id}">
+          ${visualHtml}
           <div class="equip-card-content">
             <div class="equip-card-header" style="flex-direction:column;align-items:flex-start;gap:4px;">
               <h3>${renderedTitle}</h3>
               ${badgesHtml}
             </div>
             ${specsHtml}
+            ${condicoesHtml}
+            ${quandoUsarHtml}
             <p class="equip-desc">${descHtml}</p>
             ${useHtml}
+            ${legalNoticeHtml}
             ${
               links.length
-                ? `<p class="equip-link-wrap" style="display:flex;flex-wrap:wrap;gap:8px;">${links.join("")}</p>`
+                ? `<p class="equip-link-wrap" style="display:flex;flex-wrap:wrap;gap:8px;">${appendArrowToExternalLinks(links.join(""))}</p>`
                 : ""
             }
           </div>
@@ -460,6 +801,16 @@ function renderEquipamento() {
     </div>`
     }
   `;
+
+  panel.querySelectorAll(".species-jump-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const sp = link.dataset.species;
+      if (sp && typeof jumpToSpecies === "function") {
+        jumpToSpecies(sp);
+      }
+    });
+  });
 
   const toggleKnotFiltersBtn = panel.querySelector("#btn-toggle-knot-filters");
   if (toggleKnotFiltersBtn) {
@@ -483,6 +834,27 @@ function renderEquipamento() {
       renderEquipamento();
     });
   });
+
+  panel.querySelectorAll(".equip-isco-cat-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentIscoCategory = btn.dataset.iscoCat;
+      sessionStorage.setItem("almanac-isco-cat", currentIscoCategory);
+      renderEquipamento();
+    });
+  });
+
+  const resetIscosFn = () => {
+    currentIscoCategory = "todos";
+    sessionStorage.setItem("almanac-isco-cat", "todos");
+    renderEquipamento();
+  };
+
+  const resetIscosBtn = panel.querySelector("#btn-reset-iscos");
+  if (resetIscosBtn) resetIscosBtn.addEventListener("click", resetIscosFn);
+
+  const resetIscosEmptyBtn = panel.querySelector("#btn-reset-iscos-empty");
+  if (resetIscosEmptyBtn)
+    resetIscosEmptyBtn.addEventListener("click", resetIscosFn);
 
   panel.querySelectorAll(".equip-cat-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
