@@ -422,7 +422,7 @@ input[type="search"] {
   margin-top: 1.75rem;
   scroll-margin-top: calc(
     var(--sticky-header-h) + var(--sticky-tabs-h) + var(--sticky-subtabs-h) +
-      var(--sticky-filters-h) + 1rem
+      var(--sticky-filters-h) + 1rem+ var(--sticky-tide-h, 0px)
   );
   border-radius: 8px;
   transition:

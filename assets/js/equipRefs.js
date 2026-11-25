@@ -1,4 +1,5 @@
 let tooltipHideTimer = null;
+let tooltipLockedTrigger = null;
 
 function escapeRegExp(str) {
   return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -11,6 +12,49 @@ function stripHtmlTags(str) {
     .replace(/<\/a>/gi, "")
     .replace(/<[^>]+>/g, "")
     .trim();
+}
+
+function normalizeRefText(str) {
+  return stripHtmlTags(str)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/s$/, "")
+    .trim();
+}
+
+function isAlsoFishSpecies(term) {
+  const normTerm = normalizeRefText(term);
+  if (!normTerm || normTerm.length < 3) return false;
+
+  if (typeof rows !== "undefined" && Array.isArray(rows)) {
+    return rows.some((r) => {
+      if (!r.peixe) return false;
+      const p = normalizeRefText(r.peixe);
+      return (
+        p === normTerm ||
+        p.startsWith(`${normTerm}-`) ||
+        p.startsWith(`${normTerm} `) ||
+        normTerm.startsWith(`${p}-`) ||
+        normTerm.startsWith(`${p} `)
+      );
+    });
+  }
+
+  const sel = document.getElementById("peixe");
+  if (sel) {
+    return Array.from(sel.options).some((opt) => {
+      if (!opt.value) return false;
+      const p = normalizeRefText(opt.value);
+      return (
+        p === normTerm ||
+        p.startsWith(`${normTerm}-`) ||
+        p.startsWith(`${normTerm} `)
+      );
+    });
+  }
+
+  return false;
 }
 
 function buildEquipRefEntries(lang) {
@@ -76,10 +120,12 @@ function formatAmostraWithLinks(text) {
     EQUIP_DATA.amostras.forEach((item) => {
       if (!Array.isArray(item.matches) || !item.matches.length) return;
       const pattern = new RegExp(`\\b(${item.matches.join("|")})\\b`, "gi");
-      result = result.replace(
-        pattern,
-        `<button type="button" class="amostra-ref" data-equip-subtab="amostras" data-amostra-id="${item.id}">$1</button>`,
-      );
+      result = result.replace(pattern, (match) => {
+        const dualAttr = isAlsoFishSpecies(match)
+          ? ` data-dual-species="${match}"`
+          : "";
+        return `<button type="button" class="amostra-ref" data-equip-subtab="amostras" data-amostra-id="${item.id}"${dualAttr}>${match}</button>`;
+      });
     });
   }
 
@@ -109,10 +155,12 @@ function formatAmostraWithLinks(text) {
             `(?<![\\wÀ-ÿ])(${sorted.map(escapeRegExp).join("|")})(?![\\wÀ-ÿ])`,
             "gi",
           );
-          seg = seg.replace(
-            pattern,
-            `<button type="button" class="amostra-ref" data-equip-subtab="iscos" data-amostra-id="${item.id}">$1</button>`,
-          );
+          seg = seg.replace(pattern, (match) => {
+            const dualAttr = isAlsoFishSpecies(match)
+              ? ` data-dual-species="${match}"`
+              : "";
+            return `<button type="button" class="amostra-ref" data-equip-subtab="iscos" data-amostra-id="${item.id}"${dualAttr}>${match}</button>`;
+          });
         });
         return seg;
       })
@@ -155,8 +203,11 @@ function formatMontagemWithLinks(text, lang) {
 
         seg = seg.replace(pattern, (match) => {
           const idx = placeholders.length;
+          const dualAttr = isAlsoFishSpecies(match)
+            ? ` data-dual-species="${match}"`
+            : "";
           placeholders.push(
-            `<button type="button" class="amostra-ref equip-ref" data-equip-subtab="${subtab}" data-amostra-id="${id}">${match}</button>`,
+            `<button type="button" class="amostra-ref equip-ref" data-equip-subtab="${subtab}" data-amostra-id="${id}"${dualAttr}>${match}</button>`,
           );
           return `@@EQUIPREF_${idx}@@`;
         });
@@ -184,13 +235,36 @@ function getOrCreateTooltip() {
       clearTimeout(tooltipHideTimer);
     });
     tip.addEventListener("mouseleave", () => {
-      hideAmostraTooltip();
+      if (!tooltipLockedTrigger) {
+        hideAmostraTooltip();
+      }
     });
   }
   return tip;
 }
 
-function showAmostraTooltip(triggerEl, amostraId, subtab = "amostras") {
+function positionTooltip(tip, triggerEl) {
+  const rect = triggerEl.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) return;
+
+  const tipRect = tip.getBoundingClientRect();
+  let top = rect.top + window.scrollY - tipRect.height - 10;
+  if (top < window.scrollY + 8) {
+    top = rect.bottom + window.scrollY + 10;
+  }
+  let left = rect.left + window.scrollX + rect.width / 2 - tipRect.width / 2;
+  left = Math.max(12, Math.min(left, window.innerWidth - tipRect.width - 12));
+
+  tip.style.top = `${top}px`;
+  tip.style.left = `${left}px`;
+}
+
+function showAmostraTooltip(
+  triggerEl,
+  amostraId,
+  subtab = "amostras",
+  isDualExpanded = false,
+) {
   const list =
     (typeof EQUIP_DATA !== "undefined" && EQUIP_DATA[subtab]) ||
     (typeof EQUIP_DATA !== "undefined" && EQUIP_DATA.amostras) ||
@@ -207,68 +281,120 @@ function showAmostraTooltip(triggerEl, amostraId, subtab = "amostras") {
     (item.short && (item.short[lang] || item.short.pt)) ||
     (item.desc && (item.desc[lang] || item.desc.pt)) ||
     "";
-  const hintText =
-    subtab === "nos"
-      ? lang === "pt"
-        ? "Clica para ver este nó →"
-        : "Click to view this knot →"
-      : subtab === "montagens"
-        ? lang === "pt"
-          ? "Clica para ver esta montagem →"
-          : "Click to view this rig →"
-        : subtab === "iscos"
-          ? lang === "pt"
-            ? "Clica para ver este isco →"
-            : "Click to view this bait →"
-          : lang === "pt"
-            ? "Clica para ver no guia →"
-            : "Click to view in guide →";
+
+  const dualSpecies =
+    triggerEl.dataset.dualSpecies ||
+    (isAlsoFishSpecies(triggerEl.textContent)
+      ? triggerEl.textContent.trim()
+      : "");
 
   const svgHtml = item.svg
     ? `<div class="amostra-tooltip-svg">${item.svg}</div>`
     : "";
 
-  tip.innerHTML = `
-    ${svgHtml}
-    <div class="amostra-tooltip-body">
-      <strong>${cleanTitle}</strong>
-      <p>${summaryText}</p>
-      <span class="amostra-tooltip-hint">${hintText}</span>
-    </div>
-  `;
-  tip.hidden = false;
+  const equipDestLabel =
+    subtab === "iscos"
+      ? lang === "pt"
+        ? "Isco Natural"
+        : "Natural Bait"
+      : subtab === "amostras"
+        ? lang === "pt"
+          ? "Amostra"
+          : "Lure"
+        : subtab === "nos"
+          ? lang === "pt"
+            ? "Nó"
+            : "Knot"
+          : lang === "pt"
+            ? "Montagem"
+            : "Rig";
 
-  const rect = triggerEl.getBoundingClientRect();
-  const tipRect = tip.getBoundingClientRect();
-  let top = rect.top + window.scrollY - tipRect.height - 10;
-  if (top < window.scrollY + 8) {
-    top = rect.bottom + window.scrollY + 10;
+  if (dualSpecies && isDualExpanded) {
+    tooltipLockedTrigger = triggerEl;
+    const spotsLabel = lang === "pt" ? "Pesqueiros:" : "Fishing Spots:";
+    const spotsLinkText =
+      lang === "pt"
+        ? `Ver pesqueiros de ${dualSpecies} →`
+        : `View spots for ${dualSpecies} →`;
+    const equipLinkText = `${cleanTitle} →`;
+
+    tip.innerHTML = `
+      ${svgHtml}
+      <div class="amostra-tooltip-body">
+        <strong>${cleanTitle}</strong>
+        <p>${summaryText}</p>
+        <div class="amostra-tooltip-choices" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(128,128,128,0.25);">
+          <button type="button" class="amostra-tooltip-choice-btn" data-dual-action="species" data-species="${dualSpecies}" style="background:none;border:none;padding:2px 0;text-align:left;cursor:pointer;color:inherit;font:inherit;font-size:0.84rem;">
+            <strong style="opacity:0.85;">${spotsLabel}</strong> <span class="amostra-tooltip-hint" style="display:inline;text-decoration:underline;">${spotsLinkText}</span>
+          </button>
+          <button type="button" class="amostra-tooltip-choice-btn" data-dual-action="equip" data-id="${amostraId}" data-subtab="${subtab}" style="background:none;border:none;padding:2px 0;text-align:left;cursor:pointer;color:inherit;font:inherit;font-size:0.84rem;">
+            <strong style="opacity:0.85;">${equipDestLabel}:</strong> <span class="amostra-tooltip-hint" style="display:inline;text-decoration:underline;">${equipLinkText}</span>
+          </button>
+        </div>
+      </div>
+    `;
+  } else {
+    const hintText = dualSpecies
+      ? lang === "pt"
+        ? "Clica para escolher Pesqueiros ou Isco →"
+        : "Click to choose Spots or Bait →"
+      : subtab === "nos"
+        ? lang === "pt"
+          ? "Clica para ver este nó →"
+          : "Click to view this knot →"
+        : subtab === "montagens"
+          ? lang === "pt"
+            ? "Clica para ver esta montagem →"
+            : "Click to view this rig →"
+          : subtab === "iscos"
+            ? lang === "pt"
+              ? "Clica para ver este isco →"
+              : "Click to view this bait →"
+            : subtab === "amostras"
+              ? lang === "pt"
+                ? "Clica para ver esta amostra →"
+                : "Click to view this lure →"
+              : lang === "pt"
+                ? "Clica para ver no guia →"
+                : "Click to view in guide →";
+
+    tip.innerHTML = `
+      ${svgHtml}
+      <div class="amostra-tooltip-body">
+        <strong>${cleanTitle}</strong>
+        <p>${summaryText}</p>
+        <span class="amostra-tooltip-hint">${hintText}</span>
+      </div>
+    `;
   }
-  let left = rect.left + window.scrollX + rect.width / 2 - tipRect.width / 2;
-  left = Math.max(12, Math.min(left, window.innerWidth - tipRect.width - 12));
 
-  tip.style.top = `${top}px`;
-  tip.style.left = `${left}px`;
+  tip.hidden = false;
+  positionTooltip(tip, triggerEl);
 }
 
-function hideAmostraTooltip(delay = 140) {
+function hideAmostraTooltip(delay = 140, force = false) {
+  if (!force && tooltipLockedTrigger) return;
   clearTimeout(tooltipHideTimer);
   tooltipHideTimer = setTimeout(() => {
     const tip = document.getElementById("amostra-tooltip");
     if (tip) tip.hidden = true;
+    tooltipLockedTrigger = null;
   }, delay);
 }
 
 function jumpToAmostra(amostraId, targetSubtab = "amostras") {
-  hideAmostraTooltip(0);
+  tooltipLockedTrigger = null;
+  hideAmostraTooltip(0, true);
 
   if (typeof skipNextScrollToTop !== "undefined") {
     skipNextScrollToTop = true;
   }
 
-  const equipTab = document.getElementById("tab-equipamento");
-  if (equipTab) {
-    equipTab.click();
+  if (typeof activateMainTab === "function") {
+    activateMainTab("equipamento");
+  } else {
+    const equipTab = document.getElementById("tab-equipamento");
+    if (equipTab) equipTab.click();
   }
 
   currentEquipSubtab = targetSubtab;
@@ -291,6 +417,18 @@ function jumpToAmostra(amostraId, targetSubtab = "amostras") {
         currentKnotDifficulty = "todos";
         sessionStorage.setItem("almanac-knot-diff", "todos");
       }
+    }
+  }
+
+  if (targetSubtab === "iscos" && typeof currentIscoCategory !== "undefined") {
+    const iscoItem = (EQUIP_DATA.iscos || []).find((i) => i.id === amostraId);
+    if (
+      iscoItem &&
+      currentIscoCategory !== "todos" &&
+      iscoItem.categoria !== currentIscoCategory
+    ) {
+      currentIscoCategory = "todos";
+      sessionStorage.setItem("almanac-isco-cat", "todos");
     }
   }
 
@@ -317,17 +455,20 @@ function jumpToAmostra(amostraId, targetSubtab = "amostras") {
 }
 
 document.addEventListener("mouseover", (e) => {
+  if (tooltipLockedTrigger) return;
   const btn = e.target.closest(".amostra-ref");
   if (btn) {
     showAmostraTooltip(
       btn,
       btn.dataset.amostraId,
       btn.dataset.equipSubtab || "amostras",
+      false,
     );
   }
 });
 
 document.addEventListener("mouseout", (e) => {
+  if (tooltipLockedTrigger) return;
   const btn = e.target.closest(".amostra-ref");
   if (btn) {
     hideAmostraTooltip();
@@ -335,27 +476,80 @@ document.addEventListener("mouseout", (e) => {
 });
 
 document.addEventListener("focusin", (e) => {
+  if (tooltipLockedTrigger) return;
   const btn = e.target.closest(".amostra-ref");
   if (btn) {
     showAmostraTooltip(
       btn,
       btn.dataset.amostraId,
       btn.dataset.equipSubtab || "amostras",
+      false,
     );
   }
 });
 
 document.addEventListener("focusout", (e) => {
+  if (tooltipLockedTrigger) return;
   const btn = e.target.closest(".amostra-ref");
   if (btn) {
     hideAmostraTooltip(0);
   }
 });
 
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest(".amostra-ref");
-  if (btn) {
-    e.preventDefault();
-    jumpToAmostra(btn.dataset.amostraId, btn.dataset.equipSubtab || "amostras");
-  }
-});
+// Fase de captura (true) para intercetar antes de qualquer <a class="species-ref"> pai
+document.addEventListener(
+  "click",
+  (e) => {
+    const choiceBtn = e.target.closest(".amostra-tooltip-choice-btn");
+    if (choiceBtn) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const action = choiceBtn.dataset.dualAction;
+      tooltipLockedTrigger = null;
+      hideAmostraTooltip(0, true);
+
+      if (action === "species") {
+        if (typeof window.jumpToSpecies === "function") {
+          window.jumpToSpecies(choiceBtn.dataset.species);
+        }
+      } else if (action === "equip") {
+        jumpToAmostra(
+          choiceBtn.dataset.id,
+          choiceBtn.dataset.subtab || "amostras",
+        );
+      }
+      return;
+    }
+
+    const btn = e.target.closest(".amostra-ref");
+    if (btn) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const dualSpecies =
+        btn.dataset.dualSpecies ||
+        (isAlsoFishSpecies(btn.textContent) ? btn.textContent.trim() : "");
+
+      if (dualSpecies) {
+        showAmostraTooltip(
+          btn,
+          btn.dataset.amostraId,
+          btn.dataset.equipSubtab || "amostras",
+          true,
+        );
+      } else {
+        jumpToAmostra(
+          btn.dataset.amostraId,
+          btn.dataset.equipSubtab || "amostras",
+        );
+      }
+      return;
+    }
+
+    const tip = document.getElementById("amostra-tooltip");
+    if (tooltipLockedTrigger && tip && !tip.contains(e.target)) {
+      tooltipLockedTrigger = null;
+      hideAmostraTooltip(0, true);
+    }
+  },
+  true,
+);

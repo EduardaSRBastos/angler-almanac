@@ -23,6 +23,18 @@ function formatCanaTitle(rawTitle, fallbackUrl) {
   return cleanText;
 }
 
+function appendArrowToExternalLinks(html) {
+  if (!html) return "";
+  return String(html).replace(
+    /<a\b([^>]*href\s*=\s*["']https?:\/\/[^"']+["'][^>]*)>([\s\S]*?)<\/a>/gi,
+    (match, attrs, inner) => {
+      const textOnly = inner.replace(/<[^>]*>/g, "").trim();
+      if (textOnly.endsWith("↗")) return match;
+      return `<a${attrs}>${inner.trim()} ↗</a>`;
+    },
+  );
+}
+
 function getAvailableSpeciesSet() {
   const set = new Set();
   const norm = (s) =>
@@ -204,7 +216,7 @@ function formatStructuredEquipLines(value, lang, linkify = true) {
         return `<li>${formatted}</li>`;
       })
       .join("");
-    return `<ul class="cana-use-list">${lis}</ul>`;
+    return appendArrowToExternalLinks(`<ul class="cana-use-list">${lis}</ul>`);
   }
   const text = String(value);
   if (text.includes(" · ")) {
@@ -226,12 +238,12 @@ function formatStructuredEquipLines(value, lang, linkify = true) {
           return `<li>${formatted}</li>`;
         })
         .join("");
-      return `<ul class="cana-use-list">${lis}</ul>`;
+      return appendArrowToExternalLinks(`<ul class="cana-use-list">${lis}</ul>`);
     }
   }
   let formatted = linkify ? formatMontagemWithLinks(text, lang) : text;
   formatted = linkifySpeciesNames(formatted, lang);
-  return `<p class="equip-use">${formatted}</p>`;
+  return appendArrowToExternalLinks(`<p class="equip-use">${formatted}</p>`);
 }
 
 function formatSpecsBlock(specsValue) {
@@ -243,12 +255,14 @@ function formatSpecsBlock(specsValue) {
         .map((s) => s.trim())
         .filter(Boolean);
   if (!lines.length) return "";
-  return `<ul class="cana-specs-list">${lines
-    .map((line) => {
-      const htmlLine = line.replace(/^([^:]{2,30}:)/, "<strong>$1</strong>");
-      return `<li>${htmlLine}</li>`;
-    })
-    .join("")}</ul>`;
+  return appendArrowToExternalLinks(
+    `<ul class="cana-specs-list">${lines
+      .map((line) => {
+        const htmlLine = line.replace(/^([^:]{2,30}:)/, "<strong>$1</strong>");
+        return `<li>${htmlLine}</li>`;
+      })
+      .join("")}</ul>`,
+  );
 }
 
 function renderEquipamento() {
@@ -650,12 +664,12 @@ function renderEquipamento() {
             currentEquipSubtab === "canas" && item.specs
               ? formatSpecsBlock(item.specs[lang])
               : isIsco
-                ? `
+                ? appendArrowToExternalLinks(`
                 <ul class="cana-specs-list">
                   ${anzolVal ? `<li><strong>${labels.anzolLabel}:</strong> ${anzolVal}</li>` : ""}
                   ${iscagemVal ? `<li><strong>${labels.iscagemLabel}:</strong> ${iscagemVal}</li>` : ""}
                   ${conservacaoVal ? `<li><strong>${labels.conservacaoLabel}:</strong> ${conservacaoVal}</li>` : ""}
-                </ul>`
+                </ul>`)
                 : "";
 
           const condicoesRaw =
@@ -665,7 +679,9 @@ function renderEquipamento() {
                 : item.condicoes[lang] || item.condicoes.pt || ""
               : "";
           const condicoesHtml = condicoesRaw
-            ? `<p class="equip-use"><strong>${labels.condicoesLabel}:</strong> ${condicoesRaw}</p>`
+            ? appendArrowToExternalLinks(
+                `<p class="equip-use"><strong>${labels.condicoesLabel}:</strong> ${condicoesRaw}</p>`,
+              )
             : "";
 
           const quandoUsarRaw =
@@ -675,12 +691,16 @@ function renderEquipamento() {
                 : item.quandoUsar[lang] || item.quandoUsar.pt || ""
               : "";
           const quandoUsarHtml = quandoUsarRaw
-            ? `<p class="equip-use"><strong>${labels.quandoUsarLabel}:</strong> ${linkifySpeciesNames(quandoUsarRaw, lang)}</p>`
+            ? appendArrowToExternalLinks(
+                `<p class="equip-use"><strong>${labels.quandoUsarLabel}:</strong> ${linkifySpeciesNames(quandoUsarRaw, lang)}</p>`,
+              )
             : "";
 
           const legalNoticeHtml =
             isIsco && (item.avisoLegal?.[lang] || item.avisoLegal?.pt)
-              ? `<p style="font-size:0.82rem;color:var(--muted);margin:6px 0 0 0;">⚠️ ${item.avisoLegal[lang] || item.avisoLegal.pt}</p>`
+              ? appendArrowToExternalLinks(
+                  `<p style="font-size:0.82rem;color:var(--muted);margin:6px 0 0 0;">⚠️ ${item.avisoLegal[lang] || item.avisoLegal.pt}</p>`,
+                )
               : "";
 
           const links = [];
@@ -728,10 +748,11 @@ function renderEquipamento() {
               ? item.desc?.[lang] || item.desc?.pt || ""
               : item.desc || "";
 
-          const descHtml =
+          const descHtml = appendArrowToExternalLinks(
             typeof formatMontagemWithLinks === "function"
               ? formatMontagemWithLinks(rawDesc, lang)
-              : rawDesc;
+              : rawDesc,
+          );
 
           const useRaw =
             (item.use && (item.use[lang] || item.use.pt)) ||
@@ -747,7 +768,7 @@ function renderEquipamento() {
             currentEquipSubtab === "canas"
               ? `<div class="equip-use" style="margin-top:8px;"><strong>${usoLabel}</strong>${formatStructuredEquipLines(useRaw, lang, true)}</div>`
               : useRaw
-                ? `<p class="equip-use"><strong>${usoLabel}:</strong> ${useFormatted}</p>`
+                ? `<p class="equip-use"><strong>${usoLabel}:</strong> ${appendArrowToExternalLinks(useFormatted)}</p>`
                 : "";
 
           const visualHtml = item.svg
@@ -770,7 +791,7 @@ function renderEquipamento() {
             ${legalNoticeHtml}
             ${
               links.length
-                ? `<p class="equip-link-wrap" style="display:flex;flex-wrap:wrap;gap:8px;">${links.join("")}</p>`
+                ? `<p class="equip-link-wrap" style="display:flex;flex-wrap:wrap;gap:8px;">${appendArrowToExternalLinks(links.join(""))}</p>`
                 : ""
             }
           </div>

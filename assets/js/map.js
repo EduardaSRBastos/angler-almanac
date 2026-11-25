@@ -103,7 +103,27 @@ function openMapPopup(localName, items) {
     popup.hidden = true;
     const targetEl = $(slugify(localName));
     if (targetEl) {
-      targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      const headerH = document.querySelector(".topo")?.offsetHeight || 0;
+      const tabsH = document.querySelector(".tabs")?.offsetHeight || 0;
+      const subtabsH =
+        document.querySelector("#panel-pesqueiros .distritos")?.offsetHeight ||
+        0;
+      const filtersH =
+        document.querySelector("#panel-pesqueiros .mobile-filtros-bar")
+          ?.offsetHeight ||
+        document.querySelector("#panel-pesqueiros .filtros")?.offsetHeight ||
+        0;
+      const tideH = document.getElementById("tide-bar")?.offsetHeight || 0;
+
+      const offset = headerH + tabsH + subtabsH + filtersH + tideH + 12;
+      const targetTop =
+        targetEl.getBoundingClientRect().top + window.scrollY - offset;
+
+      window.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: "smooth",
+      });
+
       targetEl.classList.add("destaque");
       setTimeout(() => targetEl.classList.remove("destaque"), 2000);
     }
