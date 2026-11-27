@@ -62,6 +62,10 @@
       <button type="button" id="tab-equipamento" class="tab" role="tab" aria-selected="false" data-tab="equipamento">
         Equipamento
       </button>
+      <button type="button" id="tab-links" class="tab" role="tab" aria-selected="false" data-tab="links"
+        data-i18n="tabLinks">Links Úteis</button>
+
+
     </nav>
 
     <!-- PAINEL PESQUEIROS -->
@@ -103,18 +107,10 @@
 
     <!-- PAINEL EQUIPAMENTO -->
     <section id="panel-equipamento" class="tab-panel" hidden>
-      <div class="sub-tabs" role="tablist">
-        <button type="button" id="subtab-amostras" class="subtab-btn active" data-subtab="amostras">
-          Amostras
-        </button>
-        <button type="button" id="subtab-nos" class="subtab-btn" data-subtab="nos">
-          Nós de Pesca
-        </button>
-      </div>
-
-      <div id="subpanel-amostras" class="subpanel"></div>
-      <div id="subpanel-nos" class="subpanel" hidden></div>
     </section>
+
+    <section id="panel-links" class="tab-panel" role="tabpanel" hidden></section>
+
 
     <footer>
       © <span id="year"></span> <a href="https://github.com/EduardaSRBastos" target="_blank"
@@ -138,6 +134,7 @@
   <script src="assets/data/rodsRigsData.js"></script>
   <script src="assets/data/checklistData.js"></script>
   <script src="assets/data/resourcesData.js"></script>
+  <script src="assets/data/handlingData.js"></script>
 
   <script src="assets/js/config-i18n.js"></script>
   <script src="assets/js/tides.js"></script>

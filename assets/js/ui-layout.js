@@ -99,6 +99,8 @@ function syncStickyHeights() {
       "--sticky-subtabs-h",
       `${activeSubtabs.offsetHeight}px`,
     );
+  } else {
+    root.style.setProperty("--sticky-subtabs-h", "0px");
   }
   if (activeFilters && activeFilters.offsetHeight > 0) {
     root.style.setProperty(
@@ -135,6 +137,10 @@ function activateMainTab(target) {
   document.querySelectorAll(".tab-panel").forEach((panel) => {
     panel.hidden = panel.id !== `panel-${target}`;
   });
+
+  if (target === "links" && typeof renderLinksTab === "function") {
+    renderLinksTab();
+  }
 
   sessionStorage.setItem("almanac-active-tab", target);
   syncStickyHeights();

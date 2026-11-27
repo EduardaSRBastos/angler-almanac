@@ -118,6 +118,8 @@ function getMoonAndTideInfo(lang = "pt") {
         ? "Est. Aveiro (interior da Ria atrasa +45 a +90 min)"
         : "Est. Aveiro (inner lagoon lags +45 to +90 min)",
     linkText: lang === "pt" ? "Tábua de Marés Aveiro ↗" : "Aveiro Tide Table ↗",
+    seaLinkText:
+      lang === "pt" ? "Ondulação & Vento (IPMA) ↗" : "Swell & Wind (IPMA) ↗",
   };
 }
 
@@ -204,8 +206,9 @@ function renderTideBar(anchorEl) {
       }
       <div class="tide-note">${info.note}</div>
     </div>
-    <div class="tide-moon-link">
+    <div class="tide-moon-link" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
       <a href="https://tabuademares.com/pt/aveiro/aveiro#_mares" target="_blank" rel="noopener noreferrer" class="equip-decathlon-link">${info.linkText}</a>
+      <a href="https://www.ipma.pt/pt/otempo/prev.localidade.hora/#Aveiro&Praia%20de%20S%C3%A3o%20Jacinto" target="_blank" rel="noopener noreferrer" class="equip-decathlon-link">${info.seaLinkText}</a>
     </div>
   `;
 }
