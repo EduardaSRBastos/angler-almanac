@@ -142,6 +142,10 @@ function activateMainTab(target) {
     renderLinksTab();
   }
 
+  if (target === "especies" && typeof renderSpeciesTab === "function") {
+    renderSpeciesTab();
+  }
+
   sessionStorage.setItem("almanac-active-tab", target);
   syncStickyHeights();
 }
