@@ -214,10 +214,10 @@ function hasActiveFilters() {
   const defaultMes = getDefaultMonthStr();
   return Boolean(
     (els.busca && els.busca.value.trim() !== "") ||
-      (els.mes && els.mes.value !== defaultMes) ||
-      (els.tipo && els.tipo.value !== "") ||
-      (els.peixe && els.peixe.value !== "") ||
-      (els.hip && els.hip.value !== ""),
+    (els.mes && els.mes.value !== defaultMes) ||
+    (els.tipo && els.tipo.value !== "") ||
+    (els.peixe && els.peixe.value !== "") ||
+    (els.hip && els.hip.value !== ""),
   );
 }
 
@@ -244,6 +244,7 @@ function applyLanguage() {
   setTextIfExists("lang-toggle", t.toggleBtn);
   setTextIfExists("tab-pesqueiros", t.tabPesqueiros);
   setTextIfExists("tab-equipamento", t.tabEquipamento);
+  setTextIfExists("tab-links", t.tabLinks);
   setTextIfExists("lbl-busca", t.lblBusca);
   if (els.busca) els.busca.placeholder = t.buscaPlaceholder;
   setTextIfExists("lbl-mes", t.lblMes);
@@ -256,6 +257,9 @@ function applyLanguage() {
   render();
   if (typeof renderEquipamento === "function") {
     renderEquipamento();
+  }
+  if (typeof renderLinksTab === "function") {
+    renderLinksTab();
   }
   if (typeof syncStickyHeights === "function") {
     syncStickyHeights();

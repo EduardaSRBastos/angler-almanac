@@ -12,6 +12,7 @@ const ASSETS_TO_CACHE = [
   "./assets/data/rodsRigsData.js",
   "./assets/data/checklistData.js",
   "./assets/data/resourcesData.js",
+  "./assets/data/handlingData.js",
   "./assets/js/config-i18n.js",
   "./assets/js/tides.js",
   "./assets/js/map.js",

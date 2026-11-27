@@ -30,6 +30,7 @@ const I18N = {
     toggleBtn: "EN",
     tabPesqueiros: "Pesqueiros",
     tabEquipamento: "Equipamento",
+    tabLinks: "Links Úteis",
     lblBusca: "Local",
     buscaPlaceholder: "Pesquisar local...",
     lblMes: "Mês",
@@ -71,6 +72,7 @@ const I18N = {
     fTecnica: "Técnica",
     fMovimento: "Movimento",
     regrasTitulo: "Regras a confirmar antes de ires",
+    subManuseamento: "Pós-Captura",
   },
   en: {
     title: "Angler's Almanac",
@@ -80,6 +82,7 @@ const I18N = {
     toggleBtn: "PT",
     tabPesqueiros: "Spots",
     tabEquipamento: "Gear & Rods",
+    tabLinks: "Useful Links",
     lblBusca: "Spot",
     buscaPlaceholder: "Search spot...",
     lblMes: "Month",
@@ -121,6 +124,7 @@ const I18N = {
     fTecnica: "Technique",
     fMovimento: "Retrieve / action",
     regrasTitulo: "Rules to check before heading out",
+    subManuseamento: "Catch Care",
   },
 };
 

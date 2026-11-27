@@ -1,5 +1,9 @@
 let currentEquipSubtab =
   sessionStorage.getItem("almanac-equip-subtab") || "amostras";
+if (currentEquipSubtab === "recursos") {
+  currentEquipSubtab = "amostras";
+  sessionStorage.setItem("almanac-equip-subtab", "amostras");
+}
 let currentKnotCategory = sessionStorage.getItem("almanac-knot-cat") || "todos";
 let currentKnotDifficulty =
   sessionStorage.getItem("almanac-knot-diff") || "todos";
@@ -211,7 +215,13 @@ function formatStructuredEquipLines(value, lang, linkify = true) {
   if (Array.isArray(value)) {
     const lis = value
       .map((line) => {
-        let formatted = linkify ? formatMontagemWithLinks(line, lang) : line;
+        const withBoldLabel = String(line).replace(
+          /^([^:]{2,36}:)/,
+          "<strong>$1</strong>",
+        );
+        let formatted = linkify
+          ? formatMontagemWithLinks(withBoldLabel, lang)
+          : withBoldLabel;
         formatted = linkifySpeciesNames(formatted, lang);
         return `<li>${formatted}</li>`;
       })
@@ -219,16 +229,17 @@ function formatStructuredEquipLines(value, lang, linkify = true) {
     return appendArrowToExternalLinks(`<ul class="cana-use-list">${lis}</ul>`);
   }
   const text = String(value);
-  if (text.includes(" · ")) {
+  if (text.includes("\n") || text.includes(" · ")) {
+    const separator = text.includes("\n") ? /\r?\n+/ : /\s*·\s*/;
     const parts = text
-      .split(/\s*·\s*/)
+      .split(separator)
       .map((p) => p.trim())
       .filter(Boolean);
     if (parts.length > 1) {
       const lis = parts
         .map((line) => {
           const withBoldLabel = line.replace(
-            /^([^:]{2,32}:)/,
+            /^([^:]{2,36}:)/,
             "<strong>$1</strong>",
           );
           let formatted = linkify
@@ -238,7 +249,9 @@ function formatStructuredEquipLines(value, lang, linkify = true) {
           return `<li>${formatted}</li>`;
         })
         .join("");
-      return appendArrowToExternalLinks(`<ul class="cana-use-list">${lis}</ul>`);
+      return appendArrowToExternalLinks(
+        `<ul class="cana-use-list">${lis}</ul>`,
+      );
     }
   }
   let formatted = linkify ? formatMontagemWithLinks(text, lang) : text;
@@ -265,11 +278,53 @@ function formatSpecsBlock(specsValue) {
   );
 }
 
+function renderLinksTab() {
+  const panel = document.getElementById("panel-links");
+  if (!panel) return;
+  const lang = typeof currentLang !== "undefined" ? currentLang : "pt";
+  const grupos =
+    (typeof EQUIP_DATA !== "undefined" && EQUIP_DATA.recursos) || [];
+
+  panel.innerHTML = `
+    <div class="checklist-grid">
+      ${grupos
+        .map(
+          (g) => `
+        <div class="checklist-card">
+          <h4>${g.categoria[lang] || g.categoria.pt}</h4>
+          <ul class="cana-use-list" style="margin-left: 14px;">
+            ${g.links
+              .map(
+                (item) => `
+              <li>
+                <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="cana-inline-link">
+                  ${item.nome[lang] || item.nome.pt} ↗
+                </a>
+                <br>
+                <span style="font-size: 0.85rem; color: var(--muted);">${item.desc[lang] || item.desc.pt}</span>
+              </li>
+            `,
+              )
+              .join("")}
+          </ul>
+        </div>
+      `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function renderEquipamento() {
   const panel = document.getElementById("panel-equipamento");
   if (!panel) return;
 
   const lang = typeof currentLang !== "undefined" ? currentLang : "pt";
+  const i18nSubManuseamento =
+    typeof I18N !== "undefined" && I18N[lang] && I18N[lang].subManuseamento
+      ? I18N[lang].subManuseamento
+      : null;
+
   const labels = {
     pt: {
       amostras: "Amostras",
@@ -277,6 +332,7 @@ function renderEquipamento() {
       nos: "Nós de Pesca",
       montagens: "Montagens",
       canas: "Canas",
+      manuseamento: i18nSubManuseamento || "Pós-Captura",
       checklist: "Checklist",
       uso: "Quando / como usar",
       usoIsco: "Espécies-alvo e dicas",
@@ -285,6 +341,7 @@ function renderEquipamento() {
       usoNo: "Para que serve / quando usar",
       usoMontagem: "Porquê usar esta montagem",
       usoCana: "Material compatível e recomendações:",
+      usoManuseamento: "Procedimentos e cuidados:",
       anzolLabel: "Anzol",
       iscagemLabel: "Iscagem",
       conservacaoLabel: "Conservação",
@@ -299,7 +356,6 @@ function renderEquipamento() {
       allKnots: "Todos os nós",
       emptyNos: "Nenhum nó encontrado com esta combinação de filtros.",
       emptyIscos: "Nenhum isco encontrado nesta categoria.",
-      recursos: "Links Úteis",
       iscoCats: {
         todos: "Todos",
         minhocas: "Minhocas",
@@ -328,6 +384,7 @@ function renderEquipamento() {
       nos: "Fishing Knots",
       montagens: "Rigs",
       canas: "Rods",
+      manuseamento: i18nSubManuseamento || "Catch Care",
       checklist: "Checklist",
       uso: "When / how to use",
       usoIsco: "Target species & tips",
@@ -336,6 +393,7 @@ function renderEquipamento() {
       usoNo: "Purpose & when to use",
       usoMontagem: "Why use this rig",
       usoCana: "Compatible tackle & recommendations:",
+      usoManuseamento: "Procedures & care:",
       anzolLabel: "Hook",
       iscagemLabel: "Rigging",
       conservacaoLabel: "Storage",
@@ -350,7 +408,6 @@ function renderEquipamento() {
       allKnots: "All knots",
       emptyNos: "No knots match the selected filters.",
       emptyIscos: "No baits match this category.",
-      recursos: "Useful Links",
       iscoCats: {
         todos: "All",
         minhocas: "Worms",
@@ -381,6 +438,9 @@ function renderEquipamento() {
     Array.isArray(EQUIP_DATA.montagens) && EQUIP_DATA.montagens.length > 0;
   const hasCanas =
     Array.isArray(EQUIP_DATA.canas) && EQUIP_DATA.canas.length > 0;
+  const hasManuseamento =
+    Array.isArray(EQUIP_DATA.manuseamento) &&
+    EQUIP_DATA.manuseamento.length > 0;
   const hasChecklist =
     Boolean(EQUIP_DATA.checklist) && Array.isArray(EQUIP_DATA.checklist.grupos);
 
@@ -390,6 +450,9 @@ function renderEquipamento() {
   if (currentEquipSubtab === "canas" && !hasCanas) {
     currentEquipSubtab = "amostras";
   }
+  if (currentEquipSubtab === "manuseamento" && !hasManuseamento) {
+    currentEquipSubtab = "amostras";
+  }
   if (currentEquipSubtab === "checklist" && !hasChecklist) {
     currentEquipSubtab = "amostras";
   }
@@ -397,13 +460,6 @@ function renderEquipamento() {
   const { marcados, total } = getChecklistCounts(currentChecklistTech);
   const checklistTabLabel =
     total > 0 ? `${labels.checklist} (${marcados}/${total})` : labels.checklist;
-
-  const hasRecursos =
-    Array.isArray(EQUIP_DATA.recursos) && EQUIP_DATA.recursos.length > 0;
-
-  if (currentEquipSubtab === "recursos" && !hasRecursos) {
-    currentEquipSubtab = "amostras";
-  }
 
   const subtabsHtml = `
     <div class="distritos equip-subtabs" role="tablist">
@@ -425,13 +481,13 @@ function renderEquipamento() {
           : ""
       }
       ${
-        hasChecklist
-          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "checklist" ? "active" : ""}" data-subtab="checklist">${checklistTabLabel}</button>`
+        hasManuseamento
+          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "manuseamento" ? "active" : ""}" data-subtab="manuseamento">${labels.manuseamento}</button>`
           : ""
       }
       ${
-        hasRecursos
-          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "recursos" ? "active" : ""}" data-subtab="recursos">${labels.recursos}</button>`
+        hasChecklist
+          ? `<button type="button" class="distrito-btn equip-subtab-btn ${currentEquipSubtab === "checklist" ? "active" : ""}" data-subtab="checklist">${checklistTabLabel}</button>`
           : ""
       }
     </div>
@@ -452,49 +508,6 @@ function renderEquipamento() {
     });
 
     renderChecklist(lang);
-    return;
-  }
-
-  if (currentEquipSubtab === "recursos" && hasRecursos) {
-    const grupos = EQUIP_DATA.recursos || [];
-    panel.innerHTML = `
-      ${subtabsHtml}
-      <div class="checklist-grid">
-        ${grupos
-          .map(
-            (g) => `
-          <div class="checklist-card">
-            <h4>${g.categoria[lang] || g.categoria.pt}</h4>
-            <ul class="cana-use-list" style="margin-left: 14px;">
-              ${g.links
-                .map(
-                  (item) => `
-                <li>
-                  <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="cana-inline-link">
-                    ${item.nome[lang] || item.nome.pt} ↗
-                  </a>
-                  <br>
-                  <span style="font-size: 0.85rem; color: var(--muted);">${item.desc[lang] || item.desc.pt}</span>
-                </li>
-              `,
-                )
-                .join("")}
-            </ul>
-          </div>
-        `,
-          )
-          .join("")}
-      </div>
-    `;
-
-    panel.querySelectorAll(".equip-subtab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        currentEquipSubtab = btn.dataset.subtab;
-        sessionStorage.setItem("almanac-equip-subtab", currentEquipSubtab);
-        renderEquipamento();
-      });
-    });
-
     return;
   }
 
@@ -609,7 +622,9 @@ function renderEquipamento() {
           ? labels.usoMontagem
           : currentEquipSubtab === "canas"
             ? labels.usoCana
-            : labels.uso;
+            : currentEquipSubtab === "manuseamento"
+              ? labels.usoManuseamento
+              : labels.uso;
 
   panel.innerHTML = `   
     ${subtabsHtml}
@@ -741,7 +756,8 @@ function renderEquipamento() {
 
           const shouldLinkify =
             currentEquipSubtab === "montagens" ||
-            currentEquipSubtab === "canas";
+            currentEquipSubtab === "canas" ||
+            currentEquipSubtab === "manuseamento";
 
           const rawDesc =
             typeof item.desc === "object"
@@ -756,6 +772,7 @@ function renderEquipamento() {
 
           const useRaw =
             (item.use && (item.use[lang] || item.use.pt)) ||
+            (item.uso && (item.uso[lang] || item.uso.pt)) ||
             (item.especies && (item.especies[lang] || item.especies.pt)) ||
             "";
 
@@ -764,12 +781,15 @@ function renderEquipamento() {
             lang,
           );
 
-          const useHtml =
-            currentEquipSubtab === "canas"
-              ? `<div class="equip-use" style="margin-top:8px;"><strong>${usoLabel}</strong>${formatStructuredEquipLines(useRaw, lang, true)}</div>`
-              : useRaw
-                ? `<p class="equip-use"><strong>${usoLabel}:</strong> ${appendArrowToExternalLinks(useFormatted)}</p>`
-                : "";
+          const isStructuredUse =
+            currentEquipSubtab === "canas" ||
+            currentEquipSubtab === "manuseamento";
+
+          const useHtml = isStructuredUse
+            ? `<div class="equip-use" style="margin-top:8px;"><strong>${usoLabel}</strong>${formatStructuredEquipLines(useRaw, lang, true)}</div>`
+            : useRaw
+              ? `<p class="equip-use"><strong>${usoLabel}:</strong> ${appendArrowToExternalLinks(useFormatted)}</p>`
+              : "";
 
           const visualHtml = item.svg
             ? `<div class="equip-card-visual">${item.svg}</div>`
@@ -885,4 +905,8 @@ function renderEquipamento() {
 
   const resetEmptyBtn = panel.querySelector("#btn-reset-knots-empty");
   if (resetEmptyBtn) resetEmptyBtn.addEventListener("click", resetKnotsFn);
+}
+
+if (typeof renderLinksTab === "function") {
+  renderLinksTab();
 }
