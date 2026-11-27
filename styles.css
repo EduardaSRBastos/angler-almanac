@@ -1338,22 +1338,24 @@ footer a {
 }
 
 .species-jump-link {
+  display: inline;
+  width: auto;
+  max-width: fit-content;
   background: none;
   border: none;
   padding: 0;
   margin: 0;
   font: inherit;
-  font-weight: 650;
+  font-weight: 700;
   color: inherit;
-  text-align: left;
   text-decoration: underline;
-  text-decoration-color: var(--channel);
   text-underline-offset: 3px;
   cursor: pointer;
 }
 
-.species-jump-link:hover {
-  color: var(--channel);
+.species-jump-link:hover,
+.species-jump-link:focus-visible {
+  color: var(--accent, #0ea5e9);
 }
 
 .species-filters-box {
