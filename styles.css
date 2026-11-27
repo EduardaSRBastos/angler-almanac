@@ -1337,6 +1337,79 @@ footer a {
   }
 }
 
+.species-jump-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 650;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--channel);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.species-jump-link:hover {
+  color: var(--channel);
+}
+
+.species-filters-box {
+  top: calc(var(--sticky-header-h) + var(--sticky-tabs-h));
+}
+
+.species-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.species-filters-row input[type="search"] {
+  flex: 1 1 230px;
+}
+
+.species-hab-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.species-alt-name {
+  font-weight: 400;
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+.species-sci-name {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.species-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.45rem 0 0.6rem;
+}
+
+.species-meta-pill {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--chip3);
+  color: var(--chip3-ink);
+}
+
+.species-to-spots-btn {
+  cursor: pointer;
+}
+
 @media (max-width: 36rem) {
   .equip-card {
     grid-template-columns: 1fr;

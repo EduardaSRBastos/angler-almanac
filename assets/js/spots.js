@@ -243,6 +243,7 @@ function applyLanguage() {
   setTextIfExists("site-sub", t.sub);
   setTextIfExists("lang-toggle", t.toggleBtn);
   setTextIfExists("tab-pesqueiros", t.tabPesqueiros);
+  setTextIfExists("tab-especies", t.tabEspecies);
   setTextIfExists("tab-equipamento", t.tabEquipamento);
   setTextIfExists("tab-links", t.tabLinks);
   setTextIfExists("lbl-busca", t.lblBusca);
@@ -255,12 +256,19 @@ function applyLanguage() {
 
   populateFilters(false);
   render();
+
   if (typeof renderEquipamento === "function") {
     renderEquipamento();
   }
+
   if (typeof renderLinksTab === "function") {
     renderLinksTab();
   }
+
+  if (typeof renderSpeciesTab === "function") {
+    renderSpeciesTab();
+  }
+
   if (typeof syncStickyHeights === "function") {
     syncStickyHeights();
   }
@@ -345,6 +353,10 @@ function render() {
     lang === "pt"
       ? "Ver tábua de marés específica deste pesqueiro"
       : "View specific tide table for this spot";
+  const speciesJumpTitle =
+    lang === "pt"
+      ? "Ver ficha de identificação desta espécie"
+      : "View species identification card";
 
   els.lista.innerHTML = [...groups]
     .map(([name, items]) => {
@@ -366,7 +378,7 @@ function render() {
           (r) => `
         <details class="peixe">
           <summary>
-            <span class="nome">${r.peixe}</span>
+            <button type="button" class="species-jump-link" data-species="${r.peixe}" title="${speciesJumpTitle}" style="background:none;border:none;padding:0;font:inherit;font-weight:700;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;">${r.peixe}</button>
             <span class="epoca">${r.epoca}</span>
             <span class="min" title="Tamanho mínimo legal">${t.minLabel} ${r.min} cm</span>
             <span class="chip c${r.rank}">${r.hip}</span>
@@ -401,6 +413,16 @@ function render() {
     btn.addEventListener("click", () => {
       if (typeof focusLocalOnMap === "function") {
         focusLocalOnMap(btn.dataset.local);
+      }
+    });
+  });
+
+  els.lista.querySelectorAll(".species-jump-link").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof window.jumpToSpeciesCard === "function") {
+        window.jumpToSpeciesCard(btn.dataset.species);
       }
     });
   });
@@ -478,6 +500,12 @@ if (savedSpotsState && savedSpotsState.lang) {
   render();
   if (typeof renderEquipamento === "function") {
     renderEquipamento();
+  }
+  if (typeof renderLinksTab === "function") {
+    renderLinksTab();
+  }
+  if (typeof renderSpeciesTab === "function") {
+    renderSpeciesTab();
   }
 }
 if (typeof syncStickyHeights === "function") {

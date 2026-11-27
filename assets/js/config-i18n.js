@@ -24,13 +24,14 @@ const RANK = {
 const I18N = {
   pt: {
     title: "Almanaque do Pescador",
-    sub: "Guia prático de pesqueiros, marés, épocas, iscos, montagens e regras de Portugal.",
+    sub: "Guia prático de pesqueiros, identificação de espécies, marés, épocas, iscos, montagens e regras de Portugal.",
     metaDesc:
-      "Almanaque do Pescador: guia prático de pesca com os melhores pesqueiros, marés, épocas, montagens, nós, checklist e regras de pesca lúdica em Portugal.",
+      "Almanaque do Pescador: guia prático de pesca com os melhores pesqueiros, identificação de espécies, marés, épocas, iscos naturais, amostras, montagens, nós, pós-captura, checklist e regras de pesca lúdica em Portugal.",
     toggleBtn: "EN",
     tabPesqueiros: "Pesqueiros",
     tabEquipamento: "Equipamento",
     tabLinks: "Links Úteis",
+    tabEspecies: "Espécies",
     lblBusca: "Local",
     buscaPlaceholder: "Pesquisar local...",
     lblMes: "Mês",
@@ -76,13 +77,14 @@ const I18N = {
   },
   en: {
     title: "Angler's Almanac",
-    sub: "Practical guide to fishing spots, tides, seasons, baits, rigs, and regulations of Portugal.",
+    sub: "Practical guide to fishing spots, species identification, tides, seasons, baits, rigs, and regulations of Portugal.",
     metaDesc:
-      "Angler's Almanac: practical fishing guide with top spots, tides, seasons, rigs, knots, checklist, and recreational fishing rules in Portugal.",
+      "Angler's Almanac: practical fishing guide with top spots, species identification, tides, seasons, natural baits, lures, rigs, knots, catch care, checklist, and recreational fishing rules in Portugal.",
     toggleBtn: "PT",
     tabPesqueiros: "Spots",
     tabEquipamento: "Gear & Rods",
     tabLinks: "Useful Links",
+    tabEspecies: "Species",
     lblBusca: "Spot",
     buscaPlaceholder: "Search spot...",
     lblMes: "Month",
