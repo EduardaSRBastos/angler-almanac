@@ -191,9 +191,12 @@ function formatMontagemWithLinks(text, lang) {
       entries.forEach(({ subtab, id, term }) => {
         const isKnot = subtab === "nos";
         const startsWithNo = /^n[óo]\b/i.test(term);
-        const prefixGuard =
-          isKnot && !startsWithNo
+        const prefixGuard = isKnot
+          ? !startsWithNo
             ? "(?<!\\b(?:b[óo]ia|chumbada|montagem|sistema|linha|anzol|fio)\\s+(?:de\\s+|do\\s+|da\\s+)?)"
+            : ""
+          : subtab === "montagens"
+            ? "(?<!\\b(?:cana|canas|rod|rods|carreto|reel|t[ée]cnica|technique)\\s+(?:de\\s+|do\\s+|da\\s+|for\\s+)?)"
             : "";
 
         const pattern = new RegExp(
@@ -496,7 +499,6 @@ document.addEventListener("focusout", (e) => {
   }
 });
 
-// Fase de captura (true) para intercetar antes de qualquer <a class="species-ref"> pai
 document.addEventListener(
   "click",
   (e) => {

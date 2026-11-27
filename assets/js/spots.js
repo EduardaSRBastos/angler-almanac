@@ -378,7 +378,7 @@ function render() {
           (r) => `
         <details class="peixe">
           <summary>
-            <button type="button" class="species-jump-link" data-species="${r.peixe}" title="${speciesJumpTitle}" style="background:none;border:none;padding:0;font:inherit;font-weight:700;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;">${r.peixe}</button>
+            <span class="nome"><button type="button" class="species-jump-link" data-species="${r.peixe}" title="${lang === "pt" ? "Ver ficha de identificação desta espécie" : "View species identification card"}">${r.peixe}</button></span>
             <span class="epoca">${r.epoca}</span>
             <span class="min" title="Tamanho mínimo legal">${t.minLabel} ${r.min} cm</span>
             <span class="chip c${r.rank}">${r.hip}</span>
